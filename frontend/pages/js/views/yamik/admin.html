@@ -1,66 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Salon Requests</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <title>Admin Dashboard - Bayleaf Salon</title>
+
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="MediaQuery.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <script src="https://kit.fontawesome.com/7a6c6b42a6.js" crossorigin="anonymous"></script>
+
     <style>
+        /* Basic styling for the cards - you can customize this further in your admin.css */
         .request-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
             margin-bottom: 20px;
+            overflow: hidden; /* To contain floated elements if any */
+        }
+
+        .request-card .card-img-col {
+            padding: 0; /* Remove padding for image column if needed */
+        }
+
+        .request-card .card-img {
+            width: 100%; /* Make image fill column */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Remove extra space below image */
+        }
+
+        .request-card .card-body {
+            padding: 15px;
+        }
+
+        .request-card .card-title {
+            margin-bottom: 10px;
+        }
+
+        .request-card .card-text {
+            margin-bottom: 8px;
+        }
+
+        .request-card .text-muted {
+            font-size: 0.9em;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Salon Booking Requests</h1>
-        <div id="requests-container" class="row">
-            <div id="loading-message" class="text-center">Loading requests...</div>
-            <div id="no-requests-message" class="text-center" style="display: none;">No requests found.</div>
-            <div id="error-message" class="text-center text-danger" style="display: none;">Failed to load requests.</div>
+    <header>
+        <a href="#" class="logo">Bayleaf Salon - Admin</a>
+        <div class="menuToggle"></div>
+        <nav>
+            <ul>
+                <li><a href="/admin">REQUESTS</a></li>
+                <li><a href="/">WEBSITE</a></li>
+                </ul>
+        </nav>
+    </header>
+    <section class="sectionFirst">
+        <h1>Requests frm the clients</h1>
+
+        <!-- transparent Img -->
+        <section class="transform-img">
+            <img src="./img/background180.svg" alt="">
+        </section>
+    </section>
+
+    <section class="admin-requests-section">
+        <div class="container">
+            <div id="requests-container" class="row">
+                </div>
         </div>
-    </div>
+    </section>
+
+    <footer>
+        <div class="fbox">Admin Panel - Bayleaf Salon</div>
+    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const requestsContainer = document.getElementById('requests-container');
-            const loadingMessage = document.getElementById('loading-message');
-            const noRequestsMessage = document.getElementById('no-requests-message');
-            const errorMessage = document.getElementById('error-message');
 
-            fetch('/api/admin-requests') // Updated fetch URL to /api/admin-requests
+            fetch('/api/admin-requests')
                 .then(response => response.json())
                 .then(requests => {
-                    loadingMessage.style.display = 'none';
-
                     if (requests && requests.length > 0) {
                         requests.forEach(request => {
-                            const card = document.createElement('div');
-                            card.className = 'card request-card col-md-4';
+                            const cardDiv = document.createElement('div');
+                            cardDiv.classList.add('card', 'mb-3', 'request-card', 'col-md-6', 'col-lg-4'); // Added 'request-card' class and Bootstrap grid classes
 
-                            card.innerHTML = `
-                                <div class="card-body">
-                                    <h5 class="card-title">${request.name}</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted">${request.service}</h6>
-                                    <p class="card-text">
-                                        <strong>Contact:</strong> ${request.contact}<br>
-                                        <strong>Email:</strong> ${request.email}<br>
-                                        <strong>Message:</strong> ${request.message}
-                                    </p>
-                                </div>
-                            `;
-                            requestsContainer.appendChild(card);
+                            const cardBodyDiv = document.createElement('div');
+                            cardBodyDiv.classList.add('card-body');
+
+                            const titleElement = document.createElement('h5');
+                            titleElement.classList.add('card-title');
+                            titleElement.textContent = `Service: ${request.service}`; // Use service as title
+                            cardBodyDiv.appendChild(titleElement);
+
+                            const nameContactElement = document.createElement('p');
+                            nameContactElement.classList.add('card-text');
+                            nameContactElement.textContent = `Name: ${request.name}, Contact: ${request.contact}`; // Name and contact in description
+                            cardBodyDiv.appendChild(nameContactElement);
+
+                            const emailElement = document.createElement('p');
+                            emailElement.classList.add('card-text');
+                            emailElement.textContent = `Email: ${request.email}`;
+                            cardBodyDiv.appendChild(emailElement);
+
+                            const timeElement = document.createElement('p');
+                            timeElement.classList.add('card-text');
+                            const smallTime = document.createElement('small');
+                            smallTime.classList.add('text-muted');
+                            smallTime.textContent = `Preferred Time: ${request.time}`; // Time as muted text
+                            timeElement.appendChild(smallTime);
+                            cardBodyDiv.appendChild(timeElement);
+
+                            const messageElement = document.createElement('p'); // Added message display
+                            messageElement.classList.add('card-text');
+                            messageElement.textContent = `Message: ${request.message || 'No message'}`; // Display message or "No message"
+                            cardBodyDiv.appendChild(messageElement);
+
+
+                            const viewDetailsButton = document.createElement('a');
+                            viewDetailsButton.classList.add('btn', 'btn-primary');
+                            viewDetailsButton.textContent = 'View Details'; // Button text - can be customized
+                            viewDetailsButton.href = '#'; // You can set a link to a detailed view if you create one
+                            cardBodyDiv.appendChild(viewDetailsButton);
+
+
+                            cardDiv.appendChild(cardBodyDiv); // No image column in this card type
+                            requestsContainer.appendChild(cardDiv);
                         });
                     } else {
-                        noRequestsMessage.style.display = 'block';
+                        requestsContainer.innerHTML = '<p>No booking requests found.</p>'; // Message if no requests
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching requests:', error);
-                    loadingMessage.style.display = 'none';
-                    errorMessage.style.display = 'block';
+                    requestsContainer.innerHTML = '<p class="error-message">Error loading booking requests.</p>'; // Error message in case of fetch failure
                 });
         });
     </script>
 </body>
+
 </html>
