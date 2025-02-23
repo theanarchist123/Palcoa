@@ -59,6 +59,16 @@ app.post('/request', async (req, res) => {
     }
 });
 
+app.get('/yamik/about', (req,res)=>{
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'about.html'));
+});
+
+app.get('/yamik/services', (req,res)=>{
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'services.html'));
+});
+app.get('/yamik/products', (req,res)=>{
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'products.html'));
+});
 // Route to fetch booking requests data for admin page (API endpoint for admin.html)
 app.get('/api/admin-requests', async (req, res) => {
     try {

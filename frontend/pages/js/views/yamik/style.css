@@ -241,7 +241,7 @@ header ul li #NavNum:hover {
     width: 100%;
     height: 100%;
     /* background-color: var(--global-color-2); */
-    background-image: url("../img/punk.png");
+    background-image: url("./img/punk.png");
     z-index: -1;
     opacity: 1.5;
     background-position: center;
@@ -479,7 +479,7 @@ header ul li #NavNum:hover {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
-    background: url("../img/discountBackGround.jpg");
+    background: url("./img/discountBackGround.jpg");
     z-index: -2;
 
 }
@@ -566,7 +566,7 @@ header ul li #NavNum:hover {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
-    background: url("../img/discountimg.jpg");
+    background: url("./img/discountimg.jpg");
     z-index: -2;
 }
 
