@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Open+Sans&family=Philosopher&family=Poppins:wght@300&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+
+}
+
+:root {
+    --font-01: 'Poppins', sans-serif;
+    --font-02: 'Philosopher', sans-serif;
+
+    /* color  */
+    --global-color-0: #e41345;
+    --global-color-1: #f70077;
+    --global-color-2: #1a1a1a;
+    --global-color-3: #3e4359;
+    --global-color-4: #f7f7f7;
+    --global-color-5: #fff;
+    --global-color-6: #243673;
+    --global-color-7: #BFD1FF;
+
+}
+
+/* sectionFirst */
+
+.sectionFirst {
+    padding: 12rem 0% 15rem;
+}
+
+.sectionFirst::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* background-color: var(--global-color-2); */
+    background-image: url("../img/DeWatermark.ai_1739989714932.png");
+    z-index: -1;
+    opacity: 1;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.sectionFirst h1 {
+    text-align: center;
+    font-size: 5rem;
+    font-family: var(--font-02);
+}
+
+.aboutServices {
+    padding: 5rem 5%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.aboutServices .ser-litText {
+    font-size: 2rem;
+    font-weight: 400;
+    font-family: var(--font-02);
+    text-align: center;
+    color: var(--global-color-1);
+}
+
+.aboutServices .ser-text {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.aboutServices .ser-box {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    color: #fff;
+}
+
+.aboutServices .ser-box .box {
+    position: relative;
+    top: 0;
+}
+
+.aboutServices .ser-box .box::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--global-color-1);
+    z-index: 1;
+    opacity: .1;
+    transition: all .4s ease;
+    border-radius: 2%;
+
+
+}
+
+.aboutServices .ser-box .box:hover:after {
+    width: 0;
+}
+
+.aboutServices .ser-box .box .img {
+    width: 100%;
+    height: 100%;
+    overflow-y: hidden;
+}
+
+.aboutServices .ser-box .box .img img {
+    width: 100%;
+    border-radius: 2%;
+    height: 100%;
+
+}
+
+.aboutServices .ser-box .box .boxinfo {
+    position: absolute;
+    bottom: 5%;
+    left: 3%;
+    z-index: 2;
+
+}
+
+.aboutServices .ser-box .box .ser-name {
+    padding-bottom: .8rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-family: var(--font-02);
+
+}
+
+.aboutServices .ser-box .box .ser-discription {
+    font-family: var(--font-02);
+}
