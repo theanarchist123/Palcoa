@@ -6,6 +6,9 @@ const Order = new Schema({
     contact: Number,
     email: String,
     service: String,
+    date: String,
+    time: String,
+    location: String,
     message: String
 });
 

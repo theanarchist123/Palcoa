@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const R1 = require('./salon'); // Make sure 'salon.js' exports your model as ORDER
 
-mongoose.connect('mongodb://localhost:27017/kalix' , {
+mongoose.connect('mongodb+srv://sentry007:sentry%40%2398@cluster0078.xh0ronz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0078', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
@@ -43,12 +43,24 @@ app.get('/yamik/contact', (req,res) => {
 });
 
 // Route to handle contact form submission (POST request from contact.html)
+// Route to handle contact form submission (POST request from contact.html)
 app.post('/request', async (req, res) => {
     console.log("Contact form submission received!");
     console.log("Request body:", req.body);
     try {
-        const { order } = req.body;
-        const newRequest = new R1(order);
+        const orderData = req.body.order; // Get the 'order' object from req.body
+
+        const newRequest = new R1({ // Use R1 (or ORDER if you changed it) - be consistent with your model variable
+            name: orderData.name,        // Explicitly map each field
+            contact: orderData.contact,
+            email: orderData.email,
+            service: orderData.service,
+            date: orderData.date,          // Explicitly include the 'date' field
+            time: orderData.time,
+            location: orderData.location,
+            message: orderData.message
+        });
+
         console.log("New request object created:", newRequest);
         await newRequest.save();
         console.log("Request saved to database successfully!");

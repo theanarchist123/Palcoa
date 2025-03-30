@@ -37,8 +37,7 @@
         <div class="frontPage">
             <div class="address">Dombiavli(West) , Ganesh Nagar</div>
             <h2 class="heading">Bayleaf Salon</h2>
-            <p class="para">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Atque totam aliquid eaque, quaerat
-                obcaecati enim placeat earum qui illum distinctio!</p>
+            <p class="para">Indulge into our mesmerising salon experinece with Bayleaf salon services!!!!</p>
             <div class="btn">
                 <a href="#">GET READY!</a>
                 <a href="#">PLACE YOUR CALL</a>
@@ -65,9 +64,7 @@
         <div class="textInfo">
             <div class="greet">Welcome To</div>
             <h2 class="title">Bayleaf Salon</h2>
-            <p class="para">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla aut odio vitae. Voluptatibus
-                deleniti at ullam error, voluptates pariatur quibusdam! Corporis corrupti in molestias consequuntur
-                dolorum eligendi vel animi suscipit!</p>
+            <p class="para">Come and delve into our immersive salon experince!</p>
 
             <a href="./about.html" class="btn">Know More</a>
         </div>
@@ -116,8 +113,7 @@
     <!-- transformBox -->
     <div class="transformBox">
         <h2>Priced Beauty Solutions</h2>
-        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Dolore id earum, voluptas consectetur explicabo
-            tempore aut placeat blanditiis dolores dolorum.</p>
+        <p>Now experince a affordable salon experience starting from Rs.299!!!</p>
     </div>
 
     <!-- section five  -->
@@ -178,9 +174,7 @@
             <i class="fa-solid fa-quote-right"></i>
         </div>
 
-        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. A rem soluta cupiditate, asperiores consectetur
-            voluptate, dolor deleniti assumenda laboriosam quae culpa natus iure eum quidem cum ducimus fugit tempora
-            sint. </p>
+        <p>Anuprita shah - "I dont think any salon can offer such a fanstatic salon experince like Bayleaf salon..." </p>
     </section>
 
     <!-- beforefooter  -->
@@ -188,9 +182,7 @@
         <div class="box">
             <div class="logo">Bayleaf Salon</div>
             
-            <p class="para">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nostrum ipsam sit magni et
-                consequatur, tenetur ab doloremque totam necessitatibus inventore optio qui? Inventore vel quibusdam
-                exercitationem, nulla asperiores fugiat totam!</p>
+            <p class="para">Enjoy our streamlined salon booking management system where we we offer clean user experince....</p>
 
             <div class="bf-text">Subscribe For Offers</div>
 
@@ -250,7 +242,193 @@
 
     <!-- js  -->
     <script src="./js/script.js"></script>
+
+    <style>
+        .servicesBox .box {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .servicesBox .box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sectionFive .BeautySolutions {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sectionFive .BeautySolutions:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 9999;
+            border: 2px solid rgba(255,255,255,0.3);
+            overflow: hidden;
+        }
+
+        .notification-fab::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1));
+            filter: blur(8px);
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .notification-fab:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255,105,180,0.2);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .notification-fab:hover::before {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+
+        .bell-icon {
+            width: 28px;
+            height: 28px;
+            position: relative;
+            z-index: 1;
+            animation: bellRing 2s infinite;
+        }
+
+        .bell-icon path {
+            fill: #ffffff;
+            stroke: #ffffff;
+            stroke-width: 1;
+            transition: all 0.3s ease;
+        }
+
+        .notification-fab:hover .bell-icon path {
+            fill: #ffffff;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            color: #ff1493;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 2px solid #ff1493;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+            z-index: 10000;
+        }
+
+        @keyframes bellRing {
+            0% {
+                transform: rotate(0);
+            }
+            20% {
+                transform: rotate(15deg);
+            }
+            40% {
+                transform: rotate(-15deg);
+            }
+            60% {
+                transform: rotate(15deg);
+            }
+            80% {
+                transform: rotate(-15deg);
+            }
+            100% {
+                transform: rotate(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255,215,0,0.4);
+            }
+            70% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 10px rgba(255,215,0,0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255,215,0,0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .notification-fab {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+            
+            .bell-icon {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .notification-badge {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+
+    <button class="notification-fab" onclick="window.location.href='./notifications.html'">
+        <svg class="bell-icon" viewBox="0 0 24 24">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+        </svg>
+        <span class="notification-badge" id="notification-count">0</span>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+            const notificationCount = document.getElementById('notification-count');
+            notificationCount.textContent = notifications.length;
+            
+            // Add hover effect for mobile devices
+            const fab = document.querySelector('.notification-fab');
+            fab.addEventListener('touchstart', function() {
+                this.style.transform = 'translateY(-5px) scale(1.05)';
+            });
+            
+            fab.addEventListener('touchend', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
 </body>
 
 </html>
+
 
