@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const R1 = require('./salon'); // Make sure 'salon.js' exports your model as ORDER
 
-mongoose.connect('mongodb+srv://sentry007:sentry%40%2398@cluster0078.xh0ronz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0078', {
+mongoose.connect('mongodb+srv://2023nikhilkadam:goodies987@cluster0.jpngk94.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
