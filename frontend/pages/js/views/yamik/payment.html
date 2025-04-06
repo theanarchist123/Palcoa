@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Bayleaf Salon</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="MediaQuery.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/7a6c6b42a6.js" crossorigin="anonymous"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body {
+            background: #f8f9fa;
+            min-height: 100vh;
+            color: #2d3436;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .payment-container {
+            max-width: 600px;
+            margin: 3rem auto;
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .payment-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        .btn-confirm {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            color: #2d3436;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+        }
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255,215,0,0.4);
+        }
+        .appointment-summary {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .appointment-summary h3 {
+            margin-bottom: 1.5rem;
+            color: #2d3436;
+            font-size: 1.2rem;
+        }
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .detail-row i {
+            color: #ffa500;
+            width: 20px;
+        }
+        .total-amount {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #dfe6e9;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <h1 class="payment-title">Confirm Your Payment</h1>
+        <div class="payment-details">
+            <div class="appointment-summary">
+                <h3>Appointment Details</h3>
+                <div class="detail-row">
+                    <i class="fas fa-cut"></i>
+                    <p><strong>Service:</strong> <span id="service-name"></span></p>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-calendar"></i>
+                    <p><strong>Date:</strong> <span id="appointment-date"></span></p>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-clock"></i>
+                    <p><strong>Time:</strong> <span id="service-time"></span></p>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p><strong>Location:</strong> <span id="location"></span></p>
+                </div>
+                <div class="detail-row">
+                    <i class="fas fa-user"></i>
+                    <p><strong>Stylist:</strong> <span id="stylist"></span></p>
+                </div>
+                <div class="detail-row total-amount">
+                    <i class="fas fa-tag"></i>
+                    <p><strong>Total Amount:</strong> ₹<span id="amount"></span></p>
+                </div>
+            </div>
+        </div>
+        <button id="pay-button" class="btn-confirm">Pay Now</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Get all appointment details from URL
+            document.getElementById('service-name').textContent = urlParams.get('service') || 'N/A';
+            document.getElementById('appointment-date').textContent = urlParams.get('date') || 'N/A';
+            document.getElementById('service-time').textContent = urlParams.get('time') || 'N/A';
+            document.getElementById('location').textContent = urlParams.get('location') || 'N/A';
+            document.getElementById('stylist').textContent = urlParams.get('stylist') || 'N/A';
+            document.getElementById('amount').textContent = urlParams.get('price') || '0.00';
+
+            document.getElementById('pay-button').onclick = async function() {
+                try {
+                    const response = await fetch('http://localhost:3000/create-order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            amount: parseFloat(urlParams.get('price')) * 100
+                        })
+                    });
+                    
+                    const order = await response.json();
+                    
+                    var options = {
+                        key: "rzp_test_YOUR_KEY_HERE",
+                        amount: order.amount,
+                        currency: "INR",
+                        order_id: order.id,
+                        name: "Bayleaf Salon",
+                        description: `${urlParams.get('service')} - ${urlParams.get('date')} ${urlParams.get('time')}`,
+                        handler: function(response) {
+                            // Handle successful payment
+         

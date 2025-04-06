@@ -280,10 +280,23 @@
                         </div>
                     </div>
                     <div class="notification-content">
-                        Your booking request for <strong>${notification.service}</strong> has been accepted. Please proceed with the payment to confirm your appointment.
+                        <p>Your booking request for <strong>${notification.service}</strong> has been accepted.</p>
+                        <div class="appointment-details">
+                            <p><i class="fas fa-calendar"></i> Date: ${notification.date}</p>
+                            <p><i class="fas fa-clock"></i> Time: ${notification.time}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> Location: ${notification.location}</p>
+                            <p><i class="fas fa-user"></i> Stylist: ${notification.stylist}</p>
+                            <p><i class="fas fa-tag"></i> Price: ₹${notification.price}</p>
+                        </div>
                     </div>
                     <div class="notification-actions">
-                        <a href="payment.html" class="btn-payment">
+                        <a href="payment.html?service=${encodeURIComponent(notification.service)}
+                            &time=${encodeURIComponent(notification.time)}
+                            &date=${encodeURIComponent(notification.date)}
+                            &location=${encodeURIComponent(notification.location)}
+                            &stylist=${encodeURIComponent(notification.stylist)}
+                            &price=${encodeURIComponent(notification.price)}" 
+                            class="btn-payment">
                             <i class="fas fa-credit-card"></i>
                             Proceed to Payment
                         </a>
@@ -297,4 +310,4 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>
