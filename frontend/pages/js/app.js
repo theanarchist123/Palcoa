@@ -3,7 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const R1 = require('./salon'); // Make sure 'salon.js' exports your model as ORDER
-
+/*const R2 = require('../models/User'); see this*/   
 mongoose.connect('mongodb+srv://2023nikhilkadam:goodies987@cluster0.jpngk94.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -18,10 +18,11 @@ db.once("open", () => {
 const app = express();
 app.set('views', path.join(__dirname, 'views'));
 
-// Serve static files - VERY IMPORTANT for CSS and JS to load correctly
-app.use('/yamik', express.static(path.join(__dirname, 'views', 'yamik'))); // For files in views/yamik (like admin.html, contact.html)
-app.use(express.static(path.join(__dirname, 'views'))); // For files in views (if any)
-app.use('/frontend/pages', express.static(path.join(__dirname, 'frontend', 'pages'))); // For your CSS, images, frontend JS - Add this line!
+// Serve static files - Corrected paths
+app.use(express.static(path.join(__dirname, '../../'))); // Serves from frontend/pages
+app.use('/css', express.static(path.join(__dirname, '../../css'))); 
+app.use('/js', express.static(path.join(__dirname, '../../js')));
+app.use('/img', express.static(path.join(__dirname, '../../img')));
 
 
 app.use(express.urlencoded({ extended: true }));
@@ -51,9 +52,7 @@ app.post('/request', async (req, res) => {
         const orderData = req.body.order; // Get the 'order' object from req.body
 
         const newRequest = new R1({ // Use R1 (or ORDER if you changed it) - be consistent with your model variable
-            name: orderData.name,        // Explicitly map each field
-            contact: orderData.contact,
-            email: orderData.email,
+            
             service: orderData.service,
             date: orderData.date,          // Explicitly include the 'date' field
             time: orderData.time,
