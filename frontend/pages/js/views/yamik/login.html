@@ -1,19 +1,506 @@
-html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Swift Salon</title>
-    <link rel="stylesheet" href="../styles/main.css">
+    <title>Login - Bayleaf Salon</title>
+
+    <!-- Stylesheet for login page -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            position: relative;
+            padding: 20px 100px;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 2em;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #ffcce0;
+        }
+
+        #NavNum {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 4px;
+        }
+
+        .login-container {
+            max-width: 450px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .login-container::after {
+            content: "";
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h2 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #777;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #ff1493;
+            outline: none;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-me input {
+            margin-right: 5px;
+        }
+
+        .forgot-password {
+            color: #ff1493;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .forgot-password:hover {
+            color: #ff69b4;
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .login-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.3);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .signup-link a {
+            color: #ff1493;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .signup-link a:hover {
+            color: #ff69b4;
+            text-decoration: underline;
+        }
+
+        .social-login {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .social-text {
+            margin-bottom: 15px;
+            position: relative;
+            color: #777;
+        }
+
+        .social-text::before,
+        .social-text::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background-color: #ddd;
+        }
+
+        .social-text::before {
+            left: 0;
+        }
+
+        .social-text::after {
+            right: 0;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-icons a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ddd;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .social-icons a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #ff1493;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 2000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: auto;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            header {
+                padding: 20px 50px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 20px 30px;
+                flex-direction: column;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav ul li {
+                margin: 10px 0;
+            }
+
+            .login-container {
+                margin: 30px 20px;
+                padding: 30px;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-container {
+            animation: fadeIn 0.8s ease forwards;
+        }
+    </style>
+
+    <!-- fontawesome -->
+    <script src="https://kit.fontawesome.com/7a6c6b42a6.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
-    <h2>Login to Your Account</h2>
-    <form id="loginForm">
-        <label for="email">Email:</label>
-        <input type="email" id="email" required>
-        <label for="password">Password:</label>
-        <input type="password" id="password" required>
-        <button type="submit">Login</button>
-    </form>
-    <script src="../scripts/auth.js"></script>
+    <header>
+        <a href="index.html" class="logo">Bayleaf Salon</a>
+        <nav>
+            <ul>
+                <li><a href="./index.html">HOME</a></li>
+                <li><a href="./about.html">ABOUT</a></li>
+                <li><a href="./services.html">SERVICES</a></li>
+                <li><a href="./portfolio.html">PORTFOLIO</a></li>
+                <li><a href="./contact.html">CONTACT</a></li>
+                <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
+                <li><a href="./contact.html" id="NavNum" style="margin-left: 10px;">PLACE YOUR CALL</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="login-container">
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to access your Bayleaf Salon account</p>
+        </div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+
+            <div class="form-footer">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="login-button">Sign In</button>
+        </form>
+
+        <div class="signup-link">
+            <p>Don't have an account? <a href="register.html">Sign Up</a></p>
+        </div>
+
+        <div class="social-login">
+            <div class="social-text">Or login with</div>
+            <div class="social-icons">
+                <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#"><i class="fa-brands fa-google"></i></a>
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Login successful! Redirecting...</div>
+
+    <footer>
+        <div class="fbox">Copyright &copy; 2025 Bayleaf Salon</div>
+        <div class="fbox">Greetings From Bayleaf Salon</div>
+    </footer>
+
+    <!-- JavaScript for login functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const notification = document.getElementById('notification');
+
+            // Sample user data (in a real app, this would be handled by a backend)
+            const users = [
+                { email: 'user@example.com', password: 'password123' },
+                { email: 'admin@bayleaf.com', password: 'admin123' }
+            ];
+
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const rememberMe = document.getElementById('remember').checked;
+                
+                // Simple validation
+                if (!email || !password) {
+                    showNotification('Please enter both email and password');
+                    return;
+                }
+                
+                // Check credentials (very basic example - not secure)
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    // If remember me is checked, save to localStorage (not secure for passwords)
+                    if (rememberMe) {
+                        localStorage.setItem('bayleafUser', JSON.stringify({ email }));
+                    }
+                    
+                    // Show success notification
+                    showNotification('Login successful! Redirecting...');
+                    
+                    // In a real app, you would handle authentication tokens here
+                    
+                    // Redirect to dashboard or home page after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    showNotification('Invalid email or password');
+                }
+            });
+
+            // Check if user was remembered
+            const savedUser = localStorage.getItem('bayleafUser');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                document.getElementById('email').value = user.email;
+                document.getElementById('remember').checked = true;
+            }
+
+            // Function to show notification
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Add password visibility toggle (optional enhancement)
+            const passwordField = document.getElementById('password');
+            
+            // Create and append the toggle button
+            const toggleButton = document.createElement('i');
+            toggleButton.className = 'fas fa-eye password-toggle';
+            toggleButton.style.position = 'absolute';
+            toggleButton.style.right = '25px';
+            toggleButton.style.top = '42px';
+            toggleButton.style.cursor = 'pointer';
+            toggleButton.style.color = '#777';
+            
+            const passwordContainer = passwordField.parentElement;
+            passwordContainer.style.position = 'relative';
+            passwordContainer.appendChild(toggleButton);
+            
+            toggleButton.addEventListener('click', function() {
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleButton.className = 'fas fa-eye-slash password-toggle';
+                } else {
+                    passwordField.type = 'password';
+                    toggleButton.className = 'fas fa-eye password-toggle';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
