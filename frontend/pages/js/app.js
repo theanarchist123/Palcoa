@@ -4,15 +4,31 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const R1 = require('./salon'); // Make sure 'salon.js' exports your model as ORDER
 
-mongoose.connect('mongodb+srv://sentry007:sentry%40%2398@cluster0078.xh0ronz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0078', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
+// Force Node.js to use TLSv1.2 (the most compatible version)
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // ONLY FOR DEVELOPMENT
 
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => {
-    console.log("Connected to MongoDB");
+// Standard MongoDB Atlas connection string format
+const uri = "mongodb+srv://2023nikhilkadam:goodies987@cluster0.jpngk94.mongodb.net/?retryWrites=true&w=majority";
+
+// Set MongoDB driver options
+const options = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    tls: true,
+    tlsAllowInvalidCertificates: true, // ONLY FOR DEVELOPMENT
+    tlsAllowInvalidHostnames: true, // ONLY FOR DEVELOPMENT
+    serverSelectionTimeoutMS: 10000
+};
+
+console.log("Attempting to connect to MongoDB Atlas...");
+mongoose.connect(uri, options)
+.then(() => console.log('Connected to MongoDB Atlas successfully'))
+.catch(err => {
+    console.error('MongoDB connection error:', err);
+    console.log('Please ensure:');
+    console.log('1. Your IP address is whitelisted in MongoDB Atlas at https://cloud.mongodb.com');
+    console.log('2. Try accessing MongoDB Atlas dashboard in your browser first to verify credentials');
+    console.log('3. Your network allows outbound connections to MongoDB (port 27017)');
 });
 
 const app = express();
