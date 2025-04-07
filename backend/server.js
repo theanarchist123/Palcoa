@@ -5,6 +5,34 @@ const Razorpay = require('razorpay');
 const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 
+// MongoDB Connection URL - replace with your MongoDB connection string
+const MONGODB_URI = 'mongodb+srv://2023nikhilkadam:goodies987@cluster0.jpngk94.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+// Enhanced MongoDB connection with error handling
+mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => {
+    console.log('Connected to MongoDB successfully');
+})
+.catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+});
+
+// Monitor MongoDB connection
+mongoose.connection.on('error', err => {
+    console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.warn('MongoDB disconnected');
+});
+
+mongoose.connection.on('reconnected', () => {
+    console.info('MongoDB reconnected');
+});
+
 // Appointment Model
 const appointmentSchema = new mongoose.Schema({
   service: String,
@@ -23,9 +51,6 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-// Connect to MongoDB
-connectDB();
 
 // Enhanced CORS configuration
 app.use(cors({
@@ -140,8 +165,11 @@ app.post('/create-order', async (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Something broke!' });
+    console.error('Server error:', err);
+    res.status(500).json({ 
+        error: 'Internal Server Error',
+        message: err.message 
+    });
 });
 
 const PORT = process.env.PORT || 3000;
