@@ -24,16 +24,19 @@
 
     <header>
         <a href="./index.html" class="logo">Bayleaf Salon</a>
+        
         <div class="menuToggle"></div>
         <nav>
             <ul>
                 <li><a href="./index.html">HOME</a></li>
                 <li><a href="./about.html">ABOUT</a></li>
+                
                 <li><a href="./services.html">SERVICES</a></li>
                 <li><a href="./portfolio.html">PORTFOLIO</a></li>
                 <li><a href="./contact.html">CONTACT</a></li>
+                <li><a href="./login.html">LOGIN</a></li>
                 <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
-                <li><a href="./contact.html" id="NavNum" style="margin-left: 10px;">PLACE YOUR CALL</a></li>
+                
             </ul>
         </nav>
     </header>
@@ -196,6 +199,320 @@
 
     <!-- js  -->
     <script src="/frontend/pages/js/script.js"></script>
+    <script>
+        // Script to manage user authentication state
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginLink = document.querySelector('nav ul li a[href="./login.html"]');
+            
+            // Check if user is logged in (stored in sessionStorage)
+            const userData = sessionStorage.getItem('bayleafUser');
+            
+            if (userData) {
+                try {
+                    // Parse user data
+                    const user = JSON.parse(userData);
+                    
+                    // Replace login link with user profile button
+                    if (loginLink) {
+                        console.log("Setting up user profile popup");
+                        
+                        // Create click handler for the login link
+                        loginLink.removeAttribute('href');
+                        loginLink.setAttribute('data-name', `${user.firstName} ${user.lastName}`);
+                        loginLink.setAttribute('data-email', user.email);
+                        loginLink.setAttribute('data-phone', user.phone);
+                        loginLink.setAttribute('data-initial', user.firstName.charAt(0));
+                        loginLink.innerHTML = user.firstName;
+                        loginLink.style.cursor = 'pointer';
+                        
+                        // Create modal overlay
+                        const modalOverlay = document.createElement('div');
+                        modalOverlay.className = 'profile-modal-overlay';
+                        modalOverlay.id = 'profileModalOverlay';
+                        
+                        // Create profile card HTML
+                        modalOverlay.innerHTML = `
+                            <div class="user-profile-card" id="profileCard">
+                                <div class="profile-card-content">
+                                    <button class="close-profile-card" id="closeProfileCard">×</button>
+                                    <div class="user-avatar">N</div>
+                                    <div class="user-profile-header">
+                                        <div class="user-profile-info">
+                                            <div class="user-profile-name">NIKHIL KADAM</div>
+                                            <div class="user-profile-role">Premium Member</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="user-profile-details">
+                                        <div class="user-profile-detail">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"></path>
+                                            </svg>
+                                            <span>nikhilrkadam2005@gmail.com</span>
+                                        </div>
+                                        <div class="user-profile-detail">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
+                                            </svg>
+                                            <span>+91 98765 43210</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="user-profile-actions">
+                                        <a href="profile.html" class="profile-action-btn profile-view-btn">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+                                            </svg>
+                                            View Profile
+                                        </a>
+                                        <a href="#" id="logoutBtn" class="profile-action-btn profile-logout-btn">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path>
+                                            </svg>
+                                            Logout
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Append the modal to the body
+                        document.body.appendChild(modalOverlay);
+                        
+                        // Add event listener to open modal
+                        loginLink.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            console.log("Profile button clicked, showing modal");
+                            
+                            // Position the card directly under the name link
+                            const profileCard = document.getElementById('profileCard');
+                            const rect = loginLink.getBoundingClientRect();
+                            
+                            // Calculate appropriate position
+                            let topPosition = (rect.bottom + window.scrollY);
+                            let leftPosition = (rect.left - 160 + rect.width/2); // Center the card under the name
+                            
+                            // Ensure the card stays within viewport bounds
+                            const viewportWidth = window.innerWidth;
+                            if (leftPosition + 320 > viewportWidth) {
+                                leftPosition = viewportWidth - 340; // 20px margin from right edge
+                            }
+                            if (leftPosition < 20) {
+                                leftPosition = 20; // 20px margin from left edge
+                            }
+                            
+                            profileCard.style.top = topPosition + 'px';
+                            profileCard.style.left = leftPosition + 'px';
+                            
+                            document.getElementById('profileModalOverlay').classList.add('active');
+                        });
+                        
+                        // Close button event
+                        document.getElementById('closeProfileCard').addEventListener('click', function() {
+                            document.getElementById('profileModalOverlay').classList.remove('active');
+                        });
+                        
+                        // Close when clicking overlay background
+                        modalOverlay.addEventListener('click', function(e) {
+                            if (e.target === modalOverlay) {
+                                modalOverlay.classList.remove('active');
+                            }
+                        });
+                        
+                        // Logout functionality
+                        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                            e.preventDefault();
+                            console.log("Logout button clicked");
+                            sessionStorage.removeItem('bayleafUser');
+                            window.location.href = 'index.html';
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    // If there's an error, clear the invalid data
+                    sessionStorage.removeItem('bayleafUser');
+                }
+            }
+        });
+    </script>
+    
+    <style>
+        /* Profile popup card - Clean simple design */
+        .user-profile-card {
+            display: block;
+            width: 320px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            padding: 0;
+            z-index: 10001;
+            border: none;
+            position: fixed;
+            animation: fadeIn 0.3s ease;
+            overflow: hidden;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .profile-card-top-decoration {
+            display: none; /* Hide this section */
+        }
+        
+        .profile-card-content {
+            padding: 0;
+            position: relative;
+        }
+        
+        .close-profile-card {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(255, 20, 147, 0.2);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #ff1493;
+            z-index: 10;
+        }
+        
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            color: white;
+            font-weight: bold;
+            font-size: 28px;
+            border: 3px solid white;
+            position: relative;
+            top: 0;
+            left: 0;
+            margin: 20px 0 0 20px;
+        }
+        
+        .user-profile-header {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            padding-top: 45px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-profile-info {
+            text-align: left;
+            margin-left: 0;
+        }
+        
+        .user-profile-name {
+            font-weight: 600;
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .user-profile-role {
+            font-size: 14px;
+            color: #777;
+            display: inline-block;
+            background-color: #f5f5f5;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-weight: 500;
+        }
+        
+        .user-profile-details {
+            margin: 0;
+            background-color: #f8f8f8;
+            padding: 0;
+        }
+        
+        .user-profile-detail {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-profile-detail:last-child {
+            border-bottom: none;
+        }
+        
+        .user-profile-detail svg {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            min-width: 18px;
+            fill: #ff1493;
+        }
+        
+        .user-profile-actions {
+            display: flex;
+            flex-direction: column;
+            padding: 15px 20px;
+        }
+        
+        .profile-action-btn {
+            padding: 14px;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .profile-action-btn svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        }
+        
+        .profile-view-btn {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .profile-logout-btn {
+            background: linear-gradient(to right, #ff69b4, #ff1493);
+            color: white;
+            margin-bottom: 0;
+        }
+        
+        .profile-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 10000;
+            pointer-events: auto;
+        }
+        
+        .profile-modal-overlay.active {
+            display: block;
+        }
+    </style>
 </body>
 
 </html>

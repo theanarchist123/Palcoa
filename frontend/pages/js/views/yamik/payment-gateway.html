@@ -130,6 +130,37 @@
             height: 40px;
             margin-bottom: 0.5rem;
         }
+        #payment-processing {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--global-color-0);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .upi-option.selected {
+            border: 2px solid var(--global-color-0);
+            background-color: rgba(228, 19, 69, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -198,7 +229,7 @@
                             <div>PhonePe</div>
                         </div>
                         <div class="upi-option">
-                            <img src="https://play-lh.googleusercontent.com/B5cNBA15IxjCT-8UTXEWgiPcGkJ1C07iHKwm2Hbs8xR6CAP_P6LYfX3mn3FhKtT6emY" alt="Paytm">
+                            <img src="https://play-lh.googleusercontent.com/ER_GOAKRRYd5YYT89_gHCjZMJCFLt3KMwxQxGJ_-rgDsLuWMCbL1VX5qhqJ1qalwxDM" alt="Paytm">
                             <div>Paytm</div>
                         </div>
                     </div>
@@ -246,36 +277,62 @@
             </div>
         </div>
         
-        <button id="pay-button" class="btn-confirm">Pay Now</button>
+        <form id="payment-form">
+            <button type="submit" id="pay-button" class="btn-confirm">Pay Now</button>
+        </form>
+    </div>
+
+    <div id="payment-processing">
+        <div class="spinner"></div>
     </div>
 
     <script>
         function showPaymentOption(option) {
-            document.querySelectorAll('.payment-option').forEach(el => {
-                el.classList.remove('active');
+            // Hide all payment options first
+            document.getElementById('upi-payment').style.display = 'none';
+            document.getElementById('card-payment').style.display = 'none';
+            document.getElementById('cash-payment').style.display = 'none';
+            
+            // Show the selected payment option
+            document.getElementById(option + '-payment').style.display = 'block';
+            
+            // Update active class for buttons
+            document.querySelectorAll('.payment-button').forEach(button => {
+                button.classList.remove('active');
             });
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('active');
-            });
-
-            document.getElementById(option + '-payment').classList.add('active');
-            event.target.classList.add('active');
+            document.querySelector(`[onclick="showPaymentOption('${option}')"]`).classList.add('active');
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
+        
+        // Handle UPI option clicks
+        function selectUpiOption(option) {
+            document.querySelectorAll('.upi-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.getElementById(option).classList.add('selected');
+        }
+        
+        // Process payment submission
+        document.getElementById('payment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            const price = parseFloat(urlParams.get('price')) || 0;
-            const tax = price * 0.18;
-            const total = price + tax;
+            // Show loading overlay
+            document.getElementById('loading-overlay').style.display = 'flex';
             
-            document.getElementById('service-charge').textContent = price.toFixed(2);
-            document.getElementById('tax-amount').textContent = tax.toFixed(2);
-            document.getElementById('total-amount').textContent = total.toFixed(2);
-
-            document.getElementById('pay-button').onclick = async function() {
-                // Payment processing logic
-            };
+            // Simulate payment processing
+            setTimeout(function() {
+                // Hide loading overlay
+                document.getElementById('loading-overlay').style.display = 'none';
+                
+                // Save last booking details if they exist
+                const bookingDetails = localStorage.getItem('currentBooking');
+                if (bookingDetails) {
+                    localStorage.setItem('lastBookingDetails', bookingDetails);
+                    localStorage.removeItem('currentBooking');
+                }
+                
+                // Redirect to success page
+                window.location.href = 'payment-success.html';
+            }, 2000);
         });
     </script>
 </body>

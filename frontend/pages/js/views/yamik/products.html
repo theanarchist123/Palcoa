@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="products.css">
-
     <link rel="stylesheet" href="MediaQuery.css">
+    <script src="https://clerk.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js"></script>
+    <script src="../../../../auth/clerk-config.js"></script>
+    <link rel="stylesheet" href="../../../../styles/auth.css">
     
     <title>Products</title>
 </head>
@@ -21,8 +23,8 @@
                 <li><a href="./services.html">SERVICES</a></li>
                 <li><a href="./portfolio.html">PORTFOLIO</a></li>
                 <li><a href="./contact.html">CONTACT</a></li>
+                <li><a href="javascript:void(0)" onclick="handleSignIn(event)">LOGIN</a></li>
                 <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
-                <li><a href="./contact.html" id="NavNum" style="margin-left: 10px;">PLACE YOUR CALL</a></li>
             </ul>
         </nav>
     </header>

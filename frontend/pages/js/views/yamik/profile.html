@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Bayleaf Salon</title>
+
+    <!-- adding css  -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- mediaQuery css  -->
+    <link rel="stylesheet" href="MediaQuery.css">
+
+    <!-- fontawesome  -->
+    <script src="https://kit.fontawesome.com/7a6c6b42a6.js" crossorigin="anonymous"></script>
+
+    <style>
+        .message-container {
+            max-width: 600px;
+            margin: 100px auto;
+            text-align: center;
+            padding: 40px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-container h2 {
+            color: #ff1493;
+            margin-bottom: 20px;
+        }
+        
+        .message-container p {
+            color: #555;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .login-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="./index.html" class="logo">Bayleaf Salon</a>
+        <div class="menuToggle"></div>
+        <nav>
+            <ul>
+                <li><a href="./index.html">HOME</a></li>
+                <li><a href="./about.html">ABOUT</a></li>
+                <li><a href="./services.html">SERVICES</a></li>
+                <li><a href="./portfolio.html">PORTFOLIO</a></li>
+                <li><a href="./contact.html">CONTACT</a></li>
+                <li><a href="./login.html">LOGIN</a></li>
+                <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="message-container">
+        <h2>Login Required</h2>
+        <p>You need to be logged in to view your profile. Please log in to access your account details and appointment history.</p>
+        <a href="./login.html" class="login-button">Go to Login</a>
+    </div>
+
+    <!-- beforefooter  -->
+    <div class="beforefooter">
+        <div class="box">
+            <div class="logo">Bayleaf Salon</div>
+            <p>
+                Discover the ultimate salon experience at Bayleaf Salon. Our expert stylists provide cutting-edge
+                hair styling, coloring, and treatments to help you look and feel your best.
+            </p>
+            <div class="icon">
+                <a href="#" class="fa-brands fa-facebook-f"></a>
+                <a href="#" class="fa-brands fa-google"></a>
+                <a href="#" class="fa-brands fa-instagram"></a>
+            </div>
+        </div>
+        <div class="box">
+            <h2>CONTACT INFO</h2>
+            <div class="contactInfo">
+                <div class="infobox">
+                    <ion-icon name="call"></ion-icon>
+                    <span>+91 1233450001</span>
+                </div>
+                <div class="infobox">
+                    <ion-icon name="mail"></ion-icon>
+                    <span>info@bayleafsalon.com</span>
+                </div>
+                <div class="infobox">
+                    <ion-icon name="map"></ion-icon>
+                    <span>Dombivali(West) , Ganesh Nagar</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pagefooter">
+        <div class="copyright">Copyright &copy; 2025 Bayleaf Salon</div>
+        <div class="greetings">Greetings From Bayleaf Salon</div>
+    </div>
+
+    <!-- icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html> 

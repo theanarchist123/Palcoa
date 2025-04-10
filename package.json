@@ -1,0 +1,25 @@
+{
+  "name": "palcoa",
+  "version": "1.0.0",
+  "main": "frontend/pages/js/app.js",
+  "scripts": {
+    "start": "node frontend/pages/js/app.js",
+    "dev": "nodemon frontend/pages/js/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.13.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Bayleaf Salon website with Clerk authentication"
+}

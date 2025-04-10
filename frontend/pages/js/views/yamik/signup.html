@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Bayleaf Salon</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="MediaQuery.css">
+
+    <!-- fontawesome  -->
+    <script src="https://kit.fontawesome.com/7a6c6b42a6.js" crossorigin="anonymous"></script>
+
+    <style>
+        /* Additional styles specific to signup */
+        .signup-container {
+            max-width: 450px;
+        }
+        
+        .name-fields {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .name-fields .input-group {
+            flex: 1;
+        }
+        
+        .terms {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .terms a {
+            color: #ff1493;
+            text-decoration: none;
+        }
+        
+        .terms a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            .name-fields {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+        
+        /* Notification popup */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #ff1493;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 2000;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Loading indicator */
+        .loading-spinner {
+            display: none;
+            margin-left: 10px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .button-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="./index.html" class="logo">Bayleaf Salon</a>
+        <div class="menuToggle"></div>
+        <nav>
+            <ul>
+                <li><a href="./index.html">HOME</a></li>
+                <li><a href="./about.html">ABOUT</a></li>
+                <li><a href="./services.html">SERVICES</a></li>
+                <li><a href="./portfolio.html">PORTFOLIO</a></li>
+                <li><a href="./contact.html">CONTACT</a></li>
+                <li><a href="./login.html">LOGIN</a></li>
+                <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="login-container signup-container">
+        <h2>Create an Account</h2>
+        <form id="signup-form" action="/api/register" method="POST">
+            <div class="name-fields">
+                <div class="input-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+                <div class="input-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="8">
+            </div>
+            <div class="input-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required minlength="8">
+            </div>
+            <div class="terms">
+                <label>
+                    <input type="checkbox" required> I agree to the <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a>
+                </label>
+            </div>
+            <button type="submit" class="login-btn">
+                <span class="button-content">
+                    Sign Up
+                    <span class="loading-spinner" id="loading-spinner"></span>
+                </span>
+            </button>
+        </form>
+        <div class="signup-link">
+            <p>Already have an account? <a href="/login">Login</a></p>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <footer>
+        <div class="fbox">Copyright &copy; 2025 Bayleaf Salon</div>
+        <div class="fbox">Greetings By Bayleaf Salon</div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('signup-form');
+            const notification = document.getElementById('notification');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Clear any previous error messages
+                document.querySelectorAll('.error-message').forEach(el => el.remove());
+                
+                // Get form data
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // Basic validation
+                if (!firstName || !lastName || !email || !phone || !password) {
+                    showNotification('Please fill in all required fields');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showNotification('Passwords do not match');
+                    document.getElementById('confirmPassword').focus();
+                    return;
+                }
+                
+                if (password.length < 8) {
+                    showNotification('Password must be at least 8 characters');
+                    document.getElementById('password').focus();
+                    return;
+                }
+                
+                // Show loading state
+                loadingSpinner.style.display = 'inline-block';
+                
+                // Create user data object
+                const userData = {
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    password
+                };
+                
+                console.log('Form submission data:', {
+                    ...userData, 
+                    password: '[HIDDEN]'
+                });
+                
+                try {
+                    // Send data to server using fetch
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    
+                    console.log('Server response status:', response.status);
+                    
+                    // Get response text
+                    const responseText = await response.text();
+                    console.log('Server response text:', responseText);
+                    
+                    // Parse JSON
+                    let data;
+                    try {
+                        data = JSON.parse(responseText);
+                        console.log('Parsed server response:', data);
+                    } catch (e) {
+                        console.error('Failed to parse JSON response:', e);
+                        showNotification('Server returned an invalid response. Please try again.');
+                        return;
+                    }
+                    
+                    if (response.ok) {
+                        console.log('Registration successful');
+                        
+                        // Clear form
+                        form.reset();
+                        
+                        // Show success notification
+                        showNotification('Registration successful! Redirecting to login...');
+                        
+                        // Redirect to login page after a delay
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 2000);
+                    } else {
+                        // Show error message from server
+                        console.error('Registration failed:', data.error, data.details);
+                        showNotification(data.error || 'Registration failed: ' + (data.details || ''));
+                    }
+                } catch (error) {
+                    console.error('Network or fetch error:', error);
+                    showNotification('Connection error. Please check your network and try again.');
+                } finally {
+                    // Hide loading spinner
+                    loadingSpinner.style.display = 'none';
+                }
+            });
+            
+            // Function to show notification
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                console.log('Showing notification:', message);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            }
+        });
+    </script>
+</body>
+</html> 

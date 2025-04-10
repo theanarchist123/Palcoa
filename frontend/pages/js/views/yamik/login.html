@@ -385,11 +385,16 @@
                 <a href="#" class="forgot-password">Forgot Password?</a>
             </div>
 
-            <button type="submit" class="login-button">Sign In</button>
+            <button type="submit" class="login-button">
+                <span class="button-content">
+                    Sign In
+                    <span class="loading-spinner" id="loading-spinner"></span>
+                </span>
+            </button>
         </form>
 
         <div class="signup-link">
-            <p>Don't have an account? <a href="register.html">Sign Up</a></p>
+            <p>Don't have an account? <a href="/signup">Sign Up</a></p>
         </div>
 
         <div class="social-login">
@@ -414,17 +419,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('login-form');
             const notification = document.getElementById('notification');
+            const loadingSpinner = document.getElementById('loading-spinner');
 
-            // Sample user data (in a real app, this would be handled by a backend)
-            const users = [
-                { email: 'user@example.com', password: 'password123' },
-                { email: 'admin@bayleaf.com', password: 'admin123' }
-            ];
-
-            loginForm.addEventListener('submit', function(e) {
+            loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const email = document.getElementById('email').value;
+                const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
                 const rememberMe = document.getElementById('remember').checked;
                 
@@ -434,34 +434,89 @@
                     return;
                 }
                 
-                // Check credentials (very basic example - not secure)
-                const user = users.find(u => u.email === email && u.password === password);
+                // Show loading state
+                loadingSpinner.style.display = 'inline-block';
                 
-                if (user) {
-                    // If remember me is checked, save to localStorage (not secure for passwords)
-                    if (rememberMe) {
-                        localStorage.setItem('bayleafUser', JSON.stringify({ email }));
+                try {
+                    console.log('Attempting login with email:', email);
+                    
+                    // Create login data object
+                    const loginData = { email, password };
+                    
+                    console.log('Sending login request to server');
+                    
+                    // Send login request to server
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(loginData)
+                    });
+                    
+                    console.log('Server response status:', response.status);
+                    
+                    // Get response text first for debugging
+                    const responseText = await response.text();
+                    console.log('Server response text:', responseText);
+                    
+                    // Parse JSON
+                    let data;
+                    try {
+                        data = JSON.parse(responseText);
+                        console.log('Parsed server response:', data);
+                    } catch (e) {
+                        console.error('Failed to parse JSON response:', e);
+                        showNotification('Server returned an invalid response');
+                        return;
                     }
                     
-                    // Show success notification
-                    showNotification('Login successful! Redirecting...');
-                    
-                    // In a real app, you would handle authentication tokens here
-                    
-                    // Redirect to dashboard or home page after a short delay
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 2000);
-                } else {
-                    showNotification('Invalid email or password');
+                    if (response.ok) {
+                        console.log('Login successful');
+                        
+                        // Handle remember me
+                        if (rememberMe) {
+                            console.log('Saving email in localStorage (remember me enabled)');
+                            // Save email in localStorage (not password for security)
+                            localStorage.setItem('bayleafUserEmail', email);
+                        } else {
+                            console.log('Removing remembered email (remember me disabled)');
+                            // Clear any previously stored email
+                            localStorage.removeItem('bayleafUserEmail');
+                        }
+                        
+                        // Store user data in sessionStorage
+                        console.log('Storing user data in session storage:', data.user);
+                        sessionStorage.setItem('bayleafUser', JSON.stringify(data.user));
+                        
+                        // Show success notification
+                        showNotification('Login successful! Redirecting...');
+                        
+                        // Redirect to home page after delay
+                        setTimeout(() => {
+                            console.log('Redirecting to home page');
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    } else {
+                        // Login failed
+                        console.error('Login failed:', data.error);
+                        showNotification(data.error || 'Invalid email or password');
+                    }
+                } catch (error) {
+                    console.error('Network or fetch error:', error);
+                    showNotification('Connection error. Please check your network and try again.');
+                } finally {
+                    // Hide loading state
+                    loadingSpinner.style.display = 'none';
                 }
             });
 
-            // Check if user was remembered
-            const savedUser = localStorage.getItem('bayleafUser');
-            if (savedUser) {
-                const user = JSON.parse(savedUser);
-                document.getElementById('email').value = user.email;
+            // Check if email was saved in localStorage (remember me)
+            const savedEmail = localStorage.getItem('bayleafUserEmail');
+            if (savedEmail) {
+                console.log('Found saved email (remember me):', savedEmail);
+                document.getElementById('email').value = savedEmail;
                 document.getElementById('remember').checked = true;
             }
 
@@ -470,12 +525,14 @@
                 notification.textContent = message;
                 notification.classList.add('show');
                 
+                console.log('Showing notification:', message);
+                
                 setTimeout(() => {
                     notification.classList.remove('show');
                 }, 3000);
             }
 
-            // Add password visibility toggle (optional enhancement)
+            // Add password visibility toggle
             const passwordField = document.getElementById('password');
             
             // Create and append the toggle button

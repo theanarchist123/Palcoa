@@ -5,6 +5,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "razorpay": "^2.9.2"
+    "nodemon": "^3.1.9",
+    "razorpay": "^2.9.2",
+    "@clerk/clerk-js": "^4.X.X"
   }
 }

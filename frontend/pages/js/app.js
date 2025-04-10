@@ -2,114 +2,408 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
-const R1 = require('./salon'); // Make sure 'salon.js' exports your model as ORDER
+const R1 = require('./salon');
+const User = require('./user');
+const https = require('https');
+const cors = require('cors');
 
-// Force Node.js to use TLSv1.2 (the most compatible version)
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // ONLY FOR DEVELOPMENT
-
-// Standard MongoDB Atlas connection string format
-const uri = "mongodb+srv://2023nikhilkadam:goodies987@cluster0.jpngk94.mongodb.net/?retryWrites=true&w=majority";
-
-// Set MongoDB driver options
-const options = {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    tls: true,
-    tlsAllowInvalidCertificates: true, // ONLY FOR DEVELOPMENT
-    tlsAllowInvalidHostnames: true, // ONLY FOR DEVELOPMENT
-    serverSelectionTimeoutMS: 10000
-};
-
-console.log("Attempting to connect to MongoDB Atlas...");
-mongoose.connect(uri, options)
-.then(() => console.log('Connected to MongoDB Atlas successfully'))
-.catch(err => {
-    console.error('MongoDB connection error:', err);
-    console.log('Please ensure:');
-    console.log('1. Your IP address is whitelisted in MongoDB Atlas at https://cloud.mongodb.com');
-    console.log('2. Try accessing MongoDB Atlas dashboard in your browser first to verify credentials');
-    console.log('3. Your network allows outbound connections to MongoDB (port 27017)');
-});
+// Load environment variables
+require('dotenv').config();
 
 const app = express();
+
+// Configure CORS
+app.use(cors({
+    origin: [
+        'http://localhost:3000'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// MongoDB Connection
+mongoose.connect('mongodb+srv://2023nikhilkadam:goodies987@cluster0.jpngk94.mongodb.net/salon?retryWrites=true&w=majority', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+})
+.then(() => {
+    console.log("MongoDB Connection Successful!");
+})
+.catch((err) => {
+    console.error("MongoDB Connection Error:", err);
+});
+
+// Handle MongoDB connection errors
+mongoose.connection.on('error', err => {
+    console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('MongoDB disconnected');
+});
+
+// Express middleware setup
 app.set('views', path.join(__dirname, 'views'));
-
-// Serve static files - VERY IMPORTANT for CSS and JS to load correctly
-app.use('/yamik', express.static(path.join(__dirname, 'views', 'yamik'))); // For files in views/yamik (like admin.html, contact.html)
-app.use(express.static(path.join(__dirname, 'views'))); // For files in views (if any)
-app.use('/frontend/pages', express.static(path.join(__dirname, 'frontend', 'pages'))); // For your CSS, images, frontend JS - Add this line!
-
-
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Add body-parser limit to handle larger payloads if needed
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+app.use(express.static(path.join(__dirname, 'views', 'yamik')));
+app.use('/static', express.static(path.join(__dirname, 'views')));
 app.use(methodOverride('_method'));
 
-// Route to serve admin page (admin.html)
+// Remove Clerk-related middleware
+app.use((req, res, next) => {
+    // Remove Clerk-specific CSP rules
+    res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' fonts.gstatic.com https://fonts.googleapis.com; frame-src 'self';"
+    );
+    next();
+});
+
+// Routes
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'index.html'));
+});
+
+app.get('/about', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'about.html'));
+});
+
+app.get('/services', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'services.html'));
+});
+
+app.get('/portfolio', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'portfolio.html'));
+});
+
+app.get('/contact', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'contact.html'));
+});
+
+app.get('/products', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'products.html'));
+});
+
+// Authentication routes
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'login.html'));
+});
+
+app.get('/signup', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'signup.html'));
+});
+
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'register.html'));
+});
+
+// Profile page (protected)
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'yamik', 'profile.html'));
+});
+
+// Admin page (protected)
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'yamik', 'admin.html'));
 });
 
-// Route to serve homepage (index.html)
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'yamik', 'index.html')); // Or wherever your index.html is
-});
-
-// Route to serve contact page (contact.html)
-app.get('/yamik/contact', (req,res) => {
-    res.sendFile(path.join(__dirname, 'views', 'yamik', 'contact.html'));
-});
-
-// Route to handle contact form submission (POST request from contact.html)
-// Route to handle contact form submission (POST request from contact.html)
-app.post('/request', async (req, res) => {
-    console.log("Contact form submission received!");
-    console.log("Request body:", req.body);
+// User registration route
+app.post('/api/register', async (req, res) => {
     try {
-        const orderData = req.body.order; // Get the 'order' object from req.body
+        console.log("==== REGISTRATION REQUEST RECEIVED ====");
+        console.log("Request headers:", req.headers);
+        console.log("Request body:", req.body);
+        
+        // Check if request body is empty
+        if (!req.body || Object.keys(req.body).length === 0) {
+            console.error("Empty request body received");
+            return res.status(400).json({
+                success: false,
+                error: "Empty request body",
+                details: "No data received"
+            });
+        }
+        
+        // Validate required fields
+        const { firstName, lastName, email, phone, password } = req.body;
+        
+        if (!firstName || !lastName || !email || !phone || !password) {
+            console.log("Missing required fields:", { 
+                firstName: firstName ? 'provided' : 'missing',
+                lastName: lastName ? 'provided' : 'missing', 
+                email: email ? 'provided' : 'missing', 
+                phone: phone ? 'provided' : 'missing', 
+                password: password ? 'provided' : 'missing' 
+            });
+            
+            return res.status(400).json({
+                success: false,
+                error: "Missing required fields",
+                details: "All fields are required"
+            });
+        }
 
-        const newRequest = new R1({ // Use R1 (or ORDER if you changed it) - be consistent with your model variable
-            name: orderData.name,        // Explicitly map each field
-            contact: orderData.contact,
-            email: orderData.email,
-            service: orderData.service,
-            date: orderData.date,          // Explicitly include the 'date' field
-            time: orderData.time,
-            location: orderData.location,
-            message: orderData.message
+        console.log("All required fields provided:", { firstName, lastName, email, phone });
+
+        try {
+            // Check if email already exists
+            console.log("Checking if email already exists:", email);
+            const existingUser = await User.findOne({ email });
+            
+            if (existingUser) {
+                console.log("Email already registered:", email);
+                return res.status(400).json({
+                    success: false,
+                    error: "Email already registered",
+                    details: "Please use a different email or login"
+                });
+            }
+            
+            console.log("Email is available for registration");
+            
+            // Create new user
+            console.log("Creating new user object");
+            const newUser = new User({
+                firstName,
+                lastName,
+                email,
+                phone,
+                password, // Note: In a real application, you would hash this password
+                createdAt: new Date()
+            });
+
+            console.log("Attempting to save user to database:", {
+                firstName,
+                lastName,
+                email,
+                phone,
+                createdAt: new Date()
+            });
+            
+            // Save user to database
+            const savedUser = await newUser.save();
+            console.log("User saved successfully to database with ID:", savedUser._id);
+            
+            // Return success without sending back sensitive data
+            console.log("Sending success response");
+            return res.status(201).json({
+                success: true,
+                message: "Registration successful"
+            });
+        } catch (dbError) {
+            console.error("Database operation error:", dbError);
+            return res.status(500).json({
+                success: false,
+                error: "Database error",
+                details: dbError.message
+            });
+        }
+    } catch (error) {
+        console.error("==== ERROR IN REGISTRATION PROCESS ====");
+        console.error("Error details:", error);
+        console.error("Stack trace:", error.stack);
+        
+        return res.status(500).json({
+            success: false,
+            error: "Server error",
+            details: "An unexpected error occurred during registration"
+        });
+    }
+});
+
+// User login route
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        // Validate inputs
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing credentials",
+                details: "Email and password are required"
+            });
+        }
+        
+        // Find user by email
+        const user = await User.findOne({ email });
+        
+        // Check if user exists and password matches
+        if (!user || user.password !== password) { // In a real app, you would use bcrypt.compare()
+            return res.status(401).json({
+                success: false,
+                error: "Invalid credentials",
+                details: "Email or password is incorrect"
+            });
+        }
+        
+        // User authenticated successfully
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        console.error("Error logging in:", error);
+        res.status(500).json({
+            success: false,
+            error: "Login failed",
+            details: error.message
+        });
+    }
+});
+
+// Contact form submission
+app.post('/request', async (req, res) => {
+    try {
+        console.log("Contact form submission received!");
+        console.log("Form data:", req.body);
+
+        // Validate required fields
+        if (!req.body.service || !req.body.date || !req.body.time || !req.body.location) {
+            return res.status(400).json({ 
+                error: "Missing required fields",
+                details: "All fields are required except message"
+            });
+        }
+
+        const newRequest = new R1({
+            service: req.body.service,
+            date: req.body.date,
+            time: req.body.time,
+            location: req.body.location,
+            message: req.body.message || "-",
+            createdAt: new Date()
         });
 
-        console.log("New request object created:", newRequest);
-        await newRequest.save();
-        console.log("Request saved to database successfully!");
-        res.redirect('/yamik/contact.html'); // Redirect back to contact page
+        const savedRequest = await newRequest.save();
+        console.log("Request saved successfully:", savedRequest);
+        res.status(200).json({ 
+            message: "Request saved successfully",
+            data: savedRequest
+        });
     } catch (error) {
-        console.error("Error saving request to database:", error);
-        res.status(500).send("Error submitting request. Please try again.");
+        console.error("Error saving request:", error);
+        res.status(500).json({ 
+            error: "Error saving your request",
+            details: error.message 
+        });
     }
 });
 
-app.get('/yamik/about', (req,res)=>{
-    res.sendFile(path.join(__dirname, 'views', 'yamik', 'about.html'));
+// Protected routes
+app.get('/admin-requests', async (req, res) => {
+    try {
+        const requests = await R1.find({}).sort({ date: -1 });
+        res.json(requests);
+    } catch (error) {
+        console.error("Error fetching requests:", error);
+        res.status(500).json({ error: 'Error fetching requests' });
+    }
 });
 
-app.get('/yamik/services', (req,res)=>{
-    res.sendFile(path.join(__dirname, 'views', 'yamik', 'services.html'));
-});
-app.get('/yamik/products', (req,res)=>{
-    res.sendFile(path.join(__dirname, 'views', 'yamik', 'products.html'));
-});
-// Route to fetch booking requests data for admin page (API endpoint for admin.html)
+// Get all admin requests
 app.get('/api/admin-requests', async (req, res) => {
     try {
-        const requests = await R1.find({});
-        console.log("Fetched requests from database:", requests);
+        const requests = await R1.find({}).sort({ createdAt: -1 });
         res.json(requests);
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: 'Failed to fetch requests' });
+    } catch (error) {
+        console.error("Error fetching requests:", error);
+        res.status(500).json({ 
+            error: 'Error fetching requests',
+            details: error.message 
+        });
     }
 });
 
+// Accept request
+app.post('/api/admin-requests/:id/accept', async (req, res) => {
+    try {
+        const request = await R1.findByIdAndUpdate(
+            req.params.id,
+            { 
+                status: 'accepted',
+                stylist: 'Assigned Stylist', // You can modify this based on your needs
+                price: '500' // You can modify this based on your needs
+            },
+            { new: true }
+        );
+        
+        if (!request) {
+            return res.status(404).json({ error: 'Request not found' });
+        }
+        
+        res.json({ 
+            message: 'Request accepted successfully', 
+            request: {
+                ...request.toObject(),
+                stylist: 'Assigned Stylist', // Include additional fields
+                price: '500'
+            }
+        });
+    } catch (error) {
+        console.error("Error accepting request:", error);
+        res.status(500).json({ 
+            error: 'Error accepting request',
+            details: error.message 
+        });
+    }
+});
 
-app.listen(3000, () => {
-    console.log("Serving on port 3000");
+// Decline request
+app.post('/api/admin-requests/:id/decline', async (req, res) => {
+    try {
+        const request = await R1.findByIdAndUpdate(
+            req.params.id,
+            { status: 'declined' },
+            { new: true }
+        );
+        if (!request) {
+            return res.status(404).json({ error: 'Request not found' });
+        }
+        res.json({ message: 'Request declined successfully', request });
+    } catch (error) {
+        console.error("Error declining request:", error);
+        res.status(500).json({ 
+            error: 'Error declining request',
+            details: error.message 
+        });
+    }
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+
+// Add a 404 handler - must be after all other routes
+app.use((req, res, next) => {
+    console.log(`404 Not Found: ${req.method} ${req.url}`);
+    // Check if the request is an API call or static file
+    if (req.url.startsWith('/api/') || req.url.includes('.')) {
+        return res.status(404).json({ error: 'Resource not found' });
+    }
+    // For regular page requests, redirect to home
+    res.redirect('/');
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });

@@ -87,109 +87,83 @@
         }
 
         .notification-card {
-            background: var(--global-color-5);
-            border-radius: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
             padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.05);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .notification-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-            background: var(--global-color-0);
-        }
-
-        .notification-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
 
         .notification-header {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            justify-content: space-between;
             margin-bottom: 1rem;
         }
 
         .notification-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--global-color-0);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--global-color-5);
-            font-size: 1.2rem;
-            box-shadow: 0 2px 8px rgba(255,215,0,0.3);
+            font-size: 1.5rem;
+            margin-right: 1rem;
         }
 
-        .notification-title {
-            color: var(--global-color-2);
-            font-size: 1.2rem;
-            font-weight: 600;
+        .notification-info {
+            flex-grow: 1;
+        }
+
+        .notification-info h5 {
             margin: 0;
+            color: #333;
         }
 
-        .notification-time {
-            color: var(--global-color-3);
-            font-size: 0.9rem;
+        .notification-info small {
+            color: #666;
         }
 
-        .notification-content {
-            color: var(--global-color-3);
-            margin-bottom: 1rem;
-            line-height: 1.6;
+        .booking-details {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
         }
 
-        .notification-actions {
-            display: flex;
-            gap: 1rem;
+        .booking-details p {
+            margin-bottom: 0.5rem;
         }
 
-        .btn-payment {
-            background: var(--global-color-0);
-            color: var(--global-color-2);
+        .btn-close {
+            background: none;
             border: none;
-            padding: 0.8rem 1.8rem;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 2px 8px rgba(255,215,0,0.3);
+            color: #999;
+            cursor: pointer;
+            padding: 0.5rem;
         }
 
-        .btn-payment:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255,215,0,0.4);
-            color: var(--global-color-2);
+        .btn-close:hover {
+            color: #dc3545;
+        }
+
+        .alert {
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
         }
 
         .empty-notifications {
             text-align: center;
-            padding: 4rem 2rem;
-            background: var(--global-color-5);
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 2rem;
+            color: #6c757d;
         }
 
         .empty-notifications i {
-            font-size: 3.5rem;
+            font-size: 3rem;
             margin-bottom: 1rem;
-            color: var(--global-color-0);
-            opacity: 0.8;
         }
 
         .empty-notifications h3 {
@@ -253,71 +227,78 @@
         </div>
     </nav>
 
-    <div class="notifications-container">
-        <h1 class="page-title">Your Notifications</h1>
-        <div id="notifications-list">
-            <!-- Notifications will be dynamically inserted here -->
+    <div class="container mt-4">
+        <h2>Notifications</h2>
+        <div id="notifications-container">
+            <!-- Notifications will be loaded here -->
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const notificationsList = document.getElementById('notifications-list');
-            
-            // Fetch notifications from localStorage or API
-            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-            
-            if (notifications.length === 0) {
-                notificationsList.innerHTML = `
-                    <div class="empty-notifications">
-                        <i class="fas fa-bell-slash"></i>
-                        <h3>No Notifications</h3>
-                        <p>You don't have any notifications yet. When your booking requests are accepted, you'll see them here.</p>
-                    </div>
-                `;
-                return;
+            const notificationsContainer = document.getElementById('notifications-container');
+
+            function formatDate(dateString) {
+                return new Date(dateString).toLocaleString();
             }
 
-            notifications.forEach(notification => {
-                const notificationCard = document.createElement('div');
-                notificationCard.classList.add('notification-card');
+            function loadNotifications() {
+                const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
                 
-                notificationCard.innerHTML = `
-                    <div class="notification-header">
-                        <div class="notification-icon">
-                            <i class="fas fa-check-circle"></i>
+                if (notifications.length === 0) {
+                    notificationsContainer.innerHTML = `
+                        <div class="text-center p-4">
+                            <i class="fas fa-bell-slash fa-3x mb-3"></i>
+                            <h4>No Notifications</h4>
+                            <p>You don't have any notifications yet.</p>
                         </div>
-                        <div>
-                            <h5 class="notification-title">Booking Request Accepted</h5>
-                            <span class="notification-time">${notification.time}</span>
+                    `;
+                    return;
+                }
+
+                notificationsContainer.innerHTML = notifications.map((notification, index) => `
+                    <div class="notification-card" id="notification-${index}">
+                        <div class="notification-header">
+                            <div class="notification-icon">
+                                <i class="fas fa-check-circle text-success"></i>
+                            </div>
+                            <div class="notification-info">
+                                <h5>Booking Accepted</h5>
+                                <small>${formatDate(notification.timestamp)}</small>
+                            </div>
+                            <button onclick="dismissNotification(${index})" class="btn-close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="notification-body">
+                            <div class="booking-details">
+                                <p><strong>Service:</strong> ${notification.service}</p>
+                                <p><strong>Date:</strong> ${notification.date}</p>
+                                <p><strong>Time:</strong> ${notification.time}</p>
+                                <p><strong>Location:</strong> ${notification.location}</p>
+                                <p><strong>Stylist:</strong> ${notification.stylist}</p>
+                                <p><strong>Price:</strong> ₹${notification.price}</p>
+                            </div>
+                            <div class="mt-3">
+                                <a href="payment.html?booking=${index}" class="btn btn-primary">
+                                    <i class="fas fa-credit-card"></i> Proceed to Payment
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <div class="notification-content">
-                        <p>Your booking request for <strong>${notification.service}</strong> has been accepted.</p>
-                        <div class="appointment-details">
-                            <p><i class="fas fa-calendar"></i> Date: ${notification.date}</p>
-                            <p><i class="fas fa-clock"></i> Time: ${notification.time}</p>
-                            <p><i class="fas fa-map-marker-alt"></i> Location: ${notification.location}</p>
-                            <p><i class="fas fa-user"></i> Stylist: ${notification.stylist}</p>
-                            <p><i class="fas fa-tag"></i> Price: ₹${notification.price}</p>
-                        </div>
-                    </div>
-                    <div class="notification-actions">
-                        <a href="payment.html?service=${encodeURIComponent(notification.service)}
-                            &time=${encodeURIComponent(notification.time)}
-                            &date=${encodeURIComponent(notification.date)}
-                            &location=${encodeURIComponent(notification.location)}
-                            &stylist=${encodeURIComponent(notification.stylist)}
-                            &price=${encodeURIComponent(notification.price)}" 
-                            class="btn-payment">
-                            <i class="fas fa-credit-card"></i>
-                            Proceed to Payment
-                        </a>
-                    </div>
-                `;
-                
-                notificationsList.appendChild(notificationCard);
-            });
+                `).join('');
+            }
+
+            // Function to dismiss notification
+            window.dismissNotification = function(index) {
+                const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+                notifications.splice(index, 1);
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                loadNotifications();
+            };
+
+            // Load notifications initially
+            loadNotifications();
         });
     </script>
 
