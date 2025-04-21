@@ -24,20 +24,12 @@
             <ul>
                 <li><a href="./index.html">HOME</a></li>
                 <li><a href="./about.html">ABOUT</a></li>
-                
-                
                 <li><a href="./services.html">SERVICES</a></li>
                 <li><a href="./portfolio.html">PORTFOLIO</a></li>
                 <li><a href="./contact.html">CONTACT</a></li>
-<<<<<<< HEAD
+                <li><a href="./appointment_edit.html">APPOINTMENTS</a></li>
                 <li><a href="./login.html" id="loginLink">LOGIN</a></li>
-                <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
-                
-=======
-                <li><a href="./login.html">LOGIN</a></li>
-
-                <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
->>>>>>> 41ac2d2 (insta facebook)
+                <li><a href="./products.html" id="NavNum">PRODUCTS</a></li>
             </ul>
         </nav>
     </header>
@@ -225,8 +217,10 @@
         <div class="box">
             <div class="bf-text">Drop a Like!</div>
             <ul class="SayHi">
-                <li><a href="./index.html">vedjoshi2005@gmail.com</a></li>
-                <li><a href="./about.html">nikhilrkadam2005@gmail.com</a></li>
+                <li><a href="./index.html">2023.ved.joshi@ves.ac.in</a></li>
+                <li><a href="./about.html">2023.nikhil.kadam@ves.ac.in</a></li>
+                <li><a href="./about.html">2023.aarya.thorat@ves.ac.in</a></li>
+                <li><a href="./about.html">2023.chinmay.ambre@ves.ac.in</a></li>
             </ul>
 
             <div class="bf-text">Contact Us</div>
@@ -281,116 +275,43 @@
             right: 30px;
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            background-color: #ff1493;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
+            border: none;
             z-index: 9999;
-            border: 2px solid rgba(255,255,255,0.3);
-            overflow: hidden;
-        }
-
-        .notification-fab::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1));
-            filter: blur(8px);
-            opacity: 0.5;
-            transition: all 0.3s ease;
-        }
-
-        .notification-fab:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(255,105,180,0.2);
-            border-color: rgba(255,255,255,0.5);
-        }
-
-        .notification-fab:hover::before {
-            opacity: 0.8;
-            transform: scale(1.1);
+            transition: transform 0.3s ease;
         }
 
         .bell-icon {
-            width: 28px;
-            height: 28px;
-            position: relative;
-            z-index: 1;
-            animation: bellRing 2s infinite;
-        }
-
-        .bell-icon path {
-            fill: #ffffff;
-            stroke: #ffffff;
-            stroke-width: 1;
-            transition: all 0.3s ease;
-        }
-
-        .notification-fab:hover .bell-icon path {
-            fill: #ffffff;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+            width: 24px;
+            height: 24px;
+            fill: white;
         }
 
         .notification-badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
-            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            top: -10px;
+            right: -10px;
+            background-color: #fff;
             color: #ff1493;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 14px;
             font-weight: bold;
             border: 2px solid #ff1493;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            animation: pulse 2s infinite;
-            z-index: 10000;
         }
 
-        @keyframes bellRing {
-            0% {
-                transform: rotate(0);
-            }
-            20% {
-                transform: rotate(15deg);
-            }
-            40% {
-                transform: rotate(-15deg);
-            }
-            60% {
-                transform: rotate(15deg);
-            }
-            80% {
-                transform: rotate(-15deg);
-            }
-            100% {
-                transform: rotate(0);
-            }
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255,215,0,0.4);
-            }
-            70% {
-                transform: scale(1.1);
-                box-shadow: 0 0 0 10px rgba(255,215,0,0);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255,215,0,0);
-            }
+        .notification-fab:hover {
+            transform: scale(1.1);
         }
 
         @media (max-width: 768px) {
@@ -402,14 +323,14 @@
             }
             
             .bell-icon {
-                width: 24px;
-                height: 24px;
+                width: 20px;
+                height: 20px;
             }
             
             .notification-badge {
-                width: 20px;
-                height: 20px;
-                font-size: 0.7rem;
+                width: 18px;
+                height: 18px;
+                font-size: 11px;
             }
         }
 
@@ -608,7 +529,7 @@
         }
     </style>
 
-    <button class="notification-fab" onclick="window.location.href='./notifications.html'">
+    <button class="notification-fab" id="notificationBtn">
         <svg class="bell-icon" viewBox="0 0 24 24">
             <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
         </svg>
@@ -767,6 +688,28 @@
             }
         });
         
+        let isNotificationsOpen = false;
+
+        document.getElementById('notificationBtn').addEventListener('click', function() {
+            isNotificationsOpen = !isNotificationsOpen;
+            
+            if (isNotificationsOpen) {
+                window.location.href = './notifications.html';
+            }
+        });
+
+        // Update notification count
+        function updateNotificationCount() {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const unreadCount = notifications.filter(n => !n.read).length;
+            const badge = document.getElementById('notification-count');
+            
+            badge.textContent = unreadCount;
+            badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+        }
+
+        // Update count when page loads
+        document.addEventListener('DOMContentLoaded', updateNotificationCount);
     </script>
 
 </body>
