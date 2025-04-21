@@ -384,8 +384,10 @@
                 </li>
                 <li><a href="./login.html">LOGIN</a></li>
                 <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
-                <!-- Keep the edit appointment link since it's needed for functionality -->
-
+                <li><a href="./contact.html" id="NavNum" style="margin-left: 10px;">PLACE YOUR CALL</a></li>
+                <li id="editAppointmentLink" style="display: none;">
+                    <a href="./editAppointment.html">EDIT APPOINTMENT</a>
+                </li>
             </ul>
         </nav>
     </header>
@@ -421,6 +423,11 @@
         <div class="social-login">
             <div class="social-text">Or login with</div>
             <div class="social-icons">
+                <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" id="google-login-button">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+                </a>
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="https://www.facebook.com/profile.php?id=61575497342961" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
                 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=bayleaf.salon.india@gmail.com" target="_blank"><i class="fa-brands fa-google"></i></a>
                 <a href="https://www.instagram.com/bayleaf_salon/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
@@ -442,6 +449,52 @@
             const notification = document.getElementById('notification');
             const loadingSpinner = document.getElementById('loading-spinner');
             const googleLoginButton = document.getElementById('google-login-button');  // Get the Google button
+
+            // Sample user data (in a real app, this would be handled by a backend)
+            const users = [
+                { email: 'user@example.com', password: 'password123' },
+                { email: 'admin@bayleaf.com', password: 'admin123' }
+            ];
+
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const rememberMe = document.getElementById('remember').checked;
+                
+                // Simple validation
+                if (!email || !password) {
+                    showNotification('Please enter both email and password');
+                    return;
+                }
+                
+                // Check credentials (very basic example - not secure)
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    // If remember me is checked, save to localStorage (not secure for passwords)
+                    if (rememberMe) {
+                        localStorage.setItem('bayleafUser', JSON.stringify({ email }));
+                    }
+                    
+                    // Show success notification
+                    showNotification('Login successful!');
+                    
+                    // In a real app, you would handle authentication tokens here
+                    // Removed automatic redirect to keep landing page visible
+                } else {
+                    showNotification('Invalid email or password');
+                }
+            });
+
+            // Check if user was remembered
+            const savedUser = localStorage.getItem('bayleafUser');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                document.getElementById('email').value = user.email;
+                document.getElementById('remember').checked = true;
+            }
 
             // Function to show notification
             function showNotification(message) {
