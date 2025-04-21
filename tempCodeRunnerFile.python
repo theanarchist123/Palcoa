@@ -1,0 +1,28 @@
+import threading
+import time
+
+def infinite_loop(loop_id):
+    print(f"Infinite loop {loop_id} started.")
+    counter = 0
+    while True:
+        counter += 1
+        # You can add some simple operations here if you want to slightly increase CPU usage per loop
+        # result = counter * counter
+        # time.sleep(0.001) # Adding a tiny delay can sometimes help with monitoring in task manager
+    print(f"Infinite loop {loop_id} ended (this should not happen).")
+
+if __name__ == "__main__":
+    num_loops = 4  # You can change this to the number of infinite loops you want to run
+
+    for i in range(num_loops):
+        thread = threading.Thread(target=infinite_loop, args=(i + 1,))
+        thread.daemon = True  # Allow the main thread to exit even if these loops are running
+        thread.start()
+
+    print(f"Running {num_loops} infinite loops in separate threads. Press Ctrl+C to stop.")
+
+    try:
+        while True:
+            time.sleep(1)  # Keep the main thread alive to allow the others to run
+    except KeyboardInterrupt:
+        print("\nStopping infinite loops.")
