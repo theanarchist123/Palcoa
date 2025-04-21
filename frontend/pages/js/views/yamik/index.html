@@ -204,6 +204,7 @@
                 <li><a href="./services.html">Services</a></li>
                 <li><a href="./protfolio.html">Portfolio</a></li>
                 <li><a href="./contact.html">Contact</a></li>
+                
             </ul>
 
             <div class="bf-text">Follow Us</div>
@@ -609,141 +610,157 @@
     </button>
 
     <script>
-        // Script to manage user authentication state
         document.addEventListener('DOMContentLoaded', function() {
             const loginLink = document.getElementById('loginLink');
-            
-            // Check if user is logged in (stored in sessionStorage)
+            const editAppointmentLink = document.getElementById('editAppointmentLink');
+        
             const userData = sessionStorage.getItem('bayleafUser');
-            
+        
             if (userData) {
                 try {
-                    // Parse user data
                     const user = JSON.parse(userData);
-                    console.log("User data found:", user);
-                    
-                    // Replace login link with user profile button
-                    if (loginLink) {
-                        console.log("Setting up user profile popup");
-                        
-                        // Create click handler for the login link
-                        loginLink.removeAttribute('href');
-                        loginLink.setAttribute('data-name', `${user.firstName} ${user.lastName}`);
-                        loginLink.setAttribute('data-email', user.email);
-                        loginLink.setAttribute('data-phone', user.phone);
-                        loginLink.setAttribute('data-initial', user.firstName.charAt(0));
-                        loginLink.innerHTML = user.firstName;
-                        loginLink.style.cursor = 'pointer';
-                        
-                        // Create modal overlay
-                        const modalOverlay = document.createElement('div');
-                        modalOverlay.className = 'profile-modal-overlay';
-                        modalOverlay.id = 'profileModalOverlay';
-                        
-                        // Create profile card HTML
-                        modalOverlay.innerHTML = `
-                            <div class="user-profile-card" id="profileCard">
-                                <div class="profile-card-content">
-                                    <button class="close-profile-card" id="closeProfileCard">×</button>
-                                    <div class="user-avatar">N</div>
-                                    <div class="user-profile-header">
-                                        <div class="user-profile-info">
-                                            <div class="user-profile-name">NIKHIL KADAM</div>
-                                            <div class="user-profile-role">Premium Member</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="user-profile-details">
-                                        <div class="user-profile-detail">
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"></path>
-                                            </svg>
-                                            <span>nikhilrkadam2005@gmail.com</span>
-                                        </div>
-                                        <div class="user-profile-detail">
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
-                                            </svg>
-                                            <span>+91 98765 43210</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="user-profile-actions">
-                                        <a href="profile.html" class="profile-action-btn profile-view-btn">
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                                            </svg>
-                                            View Profile
-                                        </a>
-                                        <a href="#" id="logoutBtn" class="profile-action-btn profile-logout-btn">
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path>
-                                            </svg>
-                                            Logout
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        
-                        // Append the modal to the body
-                        document.body.appendChild(modalOverlay);
-                        
-                        // Add event listener to open modal
-                        loginLink.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            console.log("Profile button clicked, showing modal");
-                            
-                            // Position the card directly under the name link with fixed positioning
-                            const profileCard = document.getElementById('profileCard');
-                            
-                            // Calculate position considering the viewport
-                            const rect = loginLink.getBoundingClientRect();
-                            let topPosition = rect.bottom + 5; // Adding small gap
-                            let leftPosition = rect.left - 175 + (rect.width/2); // Center under the name
-                            
-                            // Adjust if would go offscreen
-                            if (leftPosition < 20) leftPosition = 20;
-                            if (leftPosition + 350 > window.innerWidth) leftPosition = window.innerWidth - 370;
-                            
-                            // Make sure it doesn't go offscreen vertically
-                            if (topPosition + 450 > window.innerHeight) {
-                                topPosition = Math.max(20, rect.top - 450 - 10); // Place above if not enough space below
-                            }
-                            
-                            profileCard.style.top = topPosition + 'px';
-                            profileCard.style.left = leftPosition + 'px';
-                            
-                            document.getElementById('profileModalOverlay').classList.add('active');
-                        });
-                        
-                        // Close button event
-                        document.getElementById('closeProfileCard').addEventListener('click', function() {
-                            document.getElementById('profileModalOverlay').classList.remove('active');
-                        });
-                        
-                        // Close when clicking overlay background
-                        modalOverlay.addEventListener('click', function(e) {
-                            if (e.target === modalOverlay) {
-                                modalOverlay.classList.remove('active');
-                            }
-                        });
-                        
-                        // Logout functionality
-                        document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                            e.preventDefault();
-                            console.log("Logout button clicked");
-                            sessionStorage.removeItem('bayleafUser');
-                            window.location.href = 'index.html';
-                        });
+        
+                    // Show Edit Appointment link
+                    if (editAppointmentLink) {
+                        editAppointmentLink.style.display = 'block';
                     }
-                } catch (error) {
-                    console.error('Error parsing user data:', error);
-                    // If there's an error, clear the invalid data
-                    sessionStorage.removeItem('bayleafUser');
+        
+                    // Check if user is logged in (stored in sessionStorage)
+                    const userData = sessionStorage.getItem('bayleafUser');
+        
+                    if (userData) {
+                        try {
+                            // Parse user data
+                            const user = JSON.parse(userData);
+                            console.log("User data found:", user);
+        
+                            // Replace login link with user profile button
+                            if (loginLink) {
+                                console.log("Setting up user profile popup");
+        
+                                // Create click handler for the login link
+                                loginLink.removeAttribute('href');
+                                loginLink.setAttribute('data-name', `${user.firstName} ${user.lastName}`);
+                                loginLink.setAttribute('data-email', user.email);
+                                loginLink.setAttribute('data-phone', user.phone);
+                                loginLink.setAttribute('data-initial', user.firstName.charAt(0));
+                                loginLink.innerHTML = user.firstName;
+                                loginLink.style.cursor = 'pointer';
+        
+                                // Create modal overlay
+                                const modalOverlay = document.createElement('div');
+                                modalOverlay.className = 'profile-modal-overlay';
+                                modalOverlay.id = 'profileModalOverlay';
+        
+                                // Create profile card HTML
+                                modalOverlay.innerHTML = `
+                                        <div class="user-profile-card" id="profileCard">
+                                            <div class="profile-card-content">
+                                                <button class="close-profile-card" id="closeProfileCard">×</button>
+                                                <div class="user-avatar">N</div>
+                                                <div class="user-profile-header">
+                                                    <div class="user-profile-info">
+                                                        <div class="user-profile-name">NIKHIL KADAM</div>
+                                                        <div class="user-profile-role">Premium Member</div>
+                                                    </div>
+                                                </div>
+            
+                                                <div class="user-profile-details">
+                                                    <div class="user-profile-detail">
+                                                        <svg viewBox="0 0 24 24">
+                                                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"></path>
+                                                        </svg>
+                                                        <span>nikhilrkadam2005@gmail.com</span>
+                                                    </div>
+                                                    <div class="user-profile-detail">
+                                                        <svg viewBox="0 0 24 24">
+                                                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
+                                                        </svg>
+                                                        <span>+91 98765 43210</span>
+                                                    </div>
+                                                </div>
+            
+                                                <div class="user-profile-actions">
+                                                    <a href="profile.html" class="profile-action-btn profile-view-btn">
+                                                        <svg viewBox="0 0 24 24">
+                                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+                                                        </svg>
+                                                        View Profile
+                                                    </a>
+                                                    <a href="#" id="logoutBtn" class="profile-action-btn profile-logout-btn">
+                                                        <svg viewBox="0 0 24 24">
+                                                            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path>
+                                                        </svg>
+                                                        Logout
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+        
+                                // Append the modal to the body
+                                document.body.appendChild(modalOverlay);
+        
+                                // Add event listener to open modal
+                                loginLink.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    console.log("Profile button clicked, showing modal");
+        
+                                    // Position the card directly under the name link with fixed positioning
+                                    const profileCard = document.getElementById('profileCard');
+        
+                                    // Calculate position considering the viewport
+                                    const rect = loginLink.getBoundingClientRect();
+                                    let topPosition = rect.bottom + 5; // Adding small gap
+                                    let leftPosition = rect.left - 175 + (rect.width / 2); // Center under the name
+        
+                                    // Adjust if would go offscreen
+                                    if (leftPosition < 20) leftPosition = 20;
+                                    if (leftPosition + 350 > window.innerWidth) leftPosition = window.innerWidth - 370;
+        
+                                    // Make sure it doesn't go offscreen vertically
+                                    if (topPosition + 450 > window.innerHeight) {
+                                        topPosition = Math.max(20, rect.top - 450 - 10); // Place above if not enough space below
+                                    }
+        
+                                    profileCard.style.top = topPosition + 'px';
+                                    profileCard.style.left = leftPosition + 'px';
+        
+                                    document.getElementById('profileModalOverlay').classList.add('active');
+                                });
+        
+                                // Close button event
+                                document.getElementById('closeProfileCard').addEventListener('click', function() {
+                                    document.getElementById('profileModalOverlay').classList.remove('active');
+                                });
+        
+                                // Close when clicking overlay background
+                                modalOverlay.addEventListener('click', function(e) {
+                                    if (e.target === modalOverlay) {
+                                        modalOverlay.classList.remove('active');
+                                    }
+                                });
+        
+                                // Logout functionality
+                                document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    console.log("Logout button clicked");
+                                    sessionStorage.removeItem('bayleafUser');
+                                    window.location.href = 'index.html';
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Error parsing user data:', error);
+                            // If there's an error, clear the invalid data
+                            sessionStorage.removeItem('bayleafUser');
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error parsing user data", e);
                 }
             }
         });
+        
     </script>
 
 </body>
