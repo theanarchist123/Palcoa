@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const cors = require('cors');
 const Razorpay = require('razorpay');
+<<<<<<< HEAD
 const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 
@@ -51,6 +52,30 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+=======
+const connectDB = require('./config/db');
+const app = express();
+
+// Connect to MongoDB with retries
+const connectWithRetry = async () => {
+    try {
+        await connectDB();
+        console.log('MongoDB connection established');
+    } catch (err) {
+        console.error('MongoDB connection failed:', err.message);
+        console.log('Retrying in 5 seconds...');
+        setTimeout(connectWithRetry, 5000);
+    }
+};
+
+connectWithRetry();
+
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url} - ${new Date().toISOString()}`);
+    next();
+});
+>>>>>>> 41ac2d2 (insta facebook)
 
 // Enhanced CORS configuration
 app.use(cors({
@@ -62,11 +87,45 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('../frontend/pages/js/views/yamik'));
 
+<<<<<<< HEAD
 // Test endpoints
+=======
+// Health check endpoint with memory monitoring
+app.get('/health', (req, res) => {
+    const memoryUsage = process.memoryUsage();
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    
+    res.json({
+        status: 'up',
+        uptime: process.uptime(),
+        memory: {
+            rss: `${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
+            heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+            heapUsed: `${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+            external: `${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`
+        },
+        db: dbStatus,
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Memory leak detection
+let lastHeapUsed = 0;
+setInterval(() => {
+    const currentHeap = process.memoryUsage().heapUsed;
+    if (lastHeapUsed > 0 && currentHeap > lastHeapUsed * 1.5) {
+        console.warn(`Possible memory leak detected! Heap growth: ${lastHeapUsed} -> ${currentHeap}`);
+    }
+    lastHeapUsed = currentHeap;
+}, 60000);
+
+// Test endpoint
+>>>>>>> 41ac2d2 (insta facebook)
 app.get('/test', (req, res) => {
     res.json({ message: 'Server is running!' });
 });
 
+<<<<<<< HEAD
 // Handle /request endpoint
 // Enhanced appointment submission endpoint
 app.post('/request', async (req, res) => {
@@ -136,9 +195,39 @@ app.get('/db-status', (req, res) => {
 });
 
 // Initialize Razorpay
+=======
+// Initialize Razorpay with env variables
+>>>>>>> 41ac2d2 (insta facebook)
 const razorpay = new Razorpay({
-    key_id: 'rzp_test_YOUR_KEY_HERE',
-    key_secret: 'YOUR_SECRET_KEY_HERE'
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+// Memory monitoring and keep-alive ping
+setInterval(() => {
+    const memoryUsage = process.memoryUsage();
+    console.log('[Keep-alive] Server status:', {
+        uptime: `${process.uptime().toFixed(2)}s`,
+        memory: {
+            rss: `${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
+            heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+            heapUsed: `${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+            external: `${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`
+        },
+        dbStatus: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    });
+}, 30000);
+
+// Handle uncaught exceptions (prevent crash)
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    // Don't exit - log and continue
+});
+
+// Handle unhandled promise rejections (prevent crash)
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+    // Don't exit - log and continue
 });
 
 // Payment endpoint with error handling
@@ -173,9 +262,27 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    console.log('Network accessible at:', `http://${require('os').networkInterfaces().eth0?.[0]?.address || 'localhost'}:${PORT}`);
+    console.log('Process ID:', process.pid);
 });
+
+// Track server shutdown
+server.on('close', () => {
+    console.log('Server is shutting down...');
+    console.log('Last memory usage:', process.memoryUsage());
+    console.log('Uptime:', process.uptime(), 'seconds');
+});
+
+// Track process exit
+process.on('exit', (code) => {
+    console.log(`Process exiting with code: ${code}`);
+});
+
+// Enhanced keep-alive settings
+server.keepAliveTimeout = 60000;
+server.headersTimeout = 65000;
 
 server.on('error', (error) => {
     if (error.code === 'EADDRINUSE') {
