@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="MediaQuery.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/7a6c6b42a6.js" crossorigin="anonymous"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
         body {
@@ -457,6 +458,11 @@
                                             <i class="fas fa-times"></i> Decline
                                         </button>
                                     </div>
+                                    <div class="payment-section mt-3" style="display: none;">
+                                        <button class="btn btn-primary payment-btn" onclick="handlePayment('${request._id}', ${request.amount || 500})">
+                                            <i class="fas fa-credit-card"></i> Process Payment
+                                        </button>
+                                    </div>
                                 </div>
                             `;
                             
@@ -537,6 +543,79 @@
                     alert('Failed to decline request. Please try again.');
                 }
             };
+
+            // Add this new payment handling function
+            window.handlePayment = async function(requestId, amount) {
+                try {
+                    const response = await fetch('/create-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ amount })
+                    });
+                    
+                    const order = await response.json();
+                    
+                    const options = {
+                        key: 'rzp_test_bAseycHKzzaPQt',
+                        amount: order.amount,
+                        currency: order.currency,
+                        name: 'Bayleaf Salon',
+                        description: 'Service Payment',
+                        order_id: order.id,
+                        handler: async function (response) {
+                            try {
+                                const verifyResponse = await fetch('/verify-payment', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_signature: response.razorpay_signature,
+                                        request_id: requestId
+                                    })
+                                });
+                                
+                                const verification = await verifyResponse.json();
+                                if (verification.verified) {
+                                    showNotification('Payment successful!', 'success');
+                                    // Update request status
+                                    await fetch(`/api/admin-requests/${requestId}/payment-complete`, {
+                                        method: 'POST'
+                                    });
+                                    fetchRequests(); // Refresh the requests list
+                                } else {
+                                    showNotification('Payment verification failed', 'error');
+                                }
+                            } catch (error) {
+                                console.error('Payment verification error:', error);
+                                showNotification('Payment verification failed', 'error');
+                            }
+                        }
+                    };
+                    
+                    const razorpay = new Razorpay(options);
+                    razorpay.open();
+                } catch (error) {
+                    console.error('Payment error:', error);
+                    showNotification('Failed to initiate payment', 'error');
+                }
+            };
+
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `notification-popup ${type}`;
+                notification.innerHTML = `
+                    <div class="icon"><i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i></div>
+                    <div class="message">${message}</div>
+                    <div class="time">${new Date().toLocaleTimeString()}</div>
+                `;
+                document.body.appendChild(notification);
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 500);
+                }, 3000);
+            }
 
             // Initial fetch of requests
             fetchRequests();

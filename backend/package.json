@@ -6,13 +6,13 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-<<<<<<< HEAD
-    "nodemon": "^3.1.9",
-    "razorpay": "^2.9.2",
-    "@clerk/clerk-js": "^4.X.X"
-=======
     "mongoose": "^8.0.3",
-    "razorpay": "^2.9.2"
->>>>>>> 41ac2d2 (insta facebook)
+    "razorpay": "^2.9.2",
+    "@clerk/clerk-js": "^4.X.X",
+    "nodemon": "^3.1.9"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   }
 }

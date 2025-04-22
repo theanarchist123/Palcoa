@@ -1,11 +1,10 @@
 {
   "name": "palcoa",
   "version": "1.0.0",
-  "main": "frontend/pages/js/app.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node frontend/pages/js/app.js",
-    "dev": "nodemon frontend/pages/js/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^4.13.23",
@@ -13,10 +12,13 @@
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "method-override": "^3.0.0",
-    "mongoose": "^8.13.2"
+    "mongoose": "^8.13.2",
+    "razorpay": "^2.9.6"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "concurrently": "^8.2.2",
+    "serve": "^14.2.1"
   },
   "keywords": [],
   "author": "",
