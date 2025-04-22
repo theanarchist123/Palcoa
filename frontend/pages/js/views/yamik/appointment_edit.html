@@ -303,53 +303,68 @@
   </div>
 
   <script>
-    let appointments = []; // Will be populated from MongoDB
+    let appointments = [];
+    const appointmentsContainer = document.getElementById('appointmentsContainer');
 
     async function fetchAppointments() {
         try {
+            // Show loading state
+            appointmentsContainer.innerHTML = '<div class="loading">Loading appointments...</div>';
+            
             const response = await fetch('/api/appointments');
-            if (!response.ok) throw new Error('Failed to fetch appointments');
-            appointments = await response.json();
+            console.log('Response status:', response.status); // Debug log
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Fetched data:', data); // Debug log
+            
+            appointments = data;
             renderAppointments();
         } catch (error) {
-            console.error('Error:', error);
-            document.getElementById("appointmentsContainer").innerHTML = 
-                '<p style="color: red; text-align: center;">Failed to load appointments</p>';
+            console.error('Error fetching appointments:', error);
+            appointmentsContainer.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Failed to load appointments. Please try again.
+                    <button onclick="fetchAppointments()" class="retry-btn">Retry</button>
+                </div>`;
         }
     }
 
     function renderAppointments() {
-        const container = document.getElementById("appointmentsContainer");
-        container.innerHTML = "";
-        
-        if (appointments.length === 0) {
-            container.innerHTML = '<p style="text-align: center;">No appointments found</p>';
+        if (!appointments || appointments.length === 0) {
+            appointmentsContainer.innerHTML = `
+                <div class="no-appointments">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No appointments found</p>
+                </div>`;
             return;
         }
 
-        appointments.forEach(app => {
-            const card = document.createElement("div");
-            card.className = `card ${app.highlight ? "highlight" : ""}`;
-            card.innerHTML = `
-                <h3>${app.service}</h3>
-                <p><strong>Date:</strong> ${app.date}</p>
-                <p><strong>Time:</strong> ${app.time}</p>
-                <p><strong>Location:</strong> ${app.location}</p>
-                <p><strong>Status:</strong> ${app.status || 'pending'}</p>
-                <p><strong>Message:</strong> ${app.message || 'No message'}</p>
-                <button class="edit-btn" onclick="openModal('${app._id}')">Edit</button>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    function openModal(id) {
-        const app = appointments.find(a => a._id === id);
-        currentEditId = id;
-        document.getElementById("editName").value = app.service;
-        document.getElementById("editDateTime").value = app.date + 'T' + app.time;
-        document.getElementById("editPurpose").value = app.message || '';
-        document.getElementById("editModal").style.display = "flex";
+        appointmentsContainer.innerHTML = appointments.map(app => `
+            <div class="appointment-card ${app.status || 'pending'}" data-id="${app._id}">
+                <div class="appointment-header">
+                    <h3>${app.service}</h3>
+                    <span class="status-badge ${app.status || 'pending'}">
+                        ${app.status || 'Pending'}
+                    </span>
+                </div>
+                <div class="appointment-details">
+                    <p><i class="fas fa-calendar"></i> ${app.date}</p>
+                    <p><i class="fas fa-clock"></i> ${app.time}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${app.location}</p>
+                    ${app.message ? `<p><i class="fas fa-comment"></i> ${app.message}</p>` : ''}
+                </div>
+                <div class="appointment-actions">
+                    <button onclick="editAppointment('${app._id}')" class="edit-btn">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+            </div>
+        `).join('');
     }
 
     async function saveChanges() {
