@@ -522,21 +522,42 @@
             };
 
             // Handle decline button click
-            window.handleDecline = async function(requestId) {
-                try {
-                    const response = await fetch(`/api/admin-requests/${requestId}/decline`, {
-                        method: 'POST',
-                    });
-                    
-                    if (!response.ok) throw new Error('Failed to decline request');
-                    
-                    // Refresh the requests
-                    fetchRequests();
-                } catch (error) {
-                    console.error('Error declining request:', error);
-                    alert('Failed to decline request. Please try again.');
-                }
+            
+    // Handle decline button click
+    window.handleDecline = async function(requestId) {
+        try {
+            const response = await fetch(`/api/admin-requests/${requestId}/decline`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) throw new Error('Failed to decline request');
+            const data = await response.json(); // Expecting declined request info in response
+
+            // Store decline notification
+            const notificationData = {
+                type: 'booking_declined',
+                service: data.request.service,
+                date: data.request.date,
+                time: data.request.time,
+                location: data.request.location,
+                stylist: data.request.stylist || 'N/A',
+                price: data.request.price || 'N/A',
+                timestamp: new Date().toISOString()
             };
+
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            notifications.unshift(notificationData);
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+
+            // Refresh request list
+            fetchRequests();
+        } catch (error) {
+            console.error('Error declining request:', error);
+            alert('Failed to decline request. Please try again.');
+        }
+    };
+
+
 
             // Initial fetch of requests
             fetchRequests();
