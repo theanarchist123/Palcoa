@@ -3,69 +3,174 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Appointment Management</title>
+  <title>Appointment Management - Bayleaf Salon</title>
+  
+  <!-- Add Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/7a6c6b42a6.js" crossorigin="anonymous"></script>
+  
   <style>
+    /* Update font families */
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d3436 100%);
+      min-height: 100vh;
+      color: #e0e0e0;
+      font-family: 'Poppins', sans-serif;
     }
 
-    h1 {
-      text-align: center;
+    h1, h2, h3, .logo {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* Add navbar styles */
+    .header {
+      position: relative;
+      padding: 20px 100px;
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .logo {
+      color: #fff;
+      font-size: 2em;
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .logo:hover {
+      color: #fff;
+      text-shadow: 0 0 15px rgba(255,255,255,0.5);
+    }
+
+    nav ul {
+      display: flex;
+      gap: 30px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li {
+      list-style: none;
+    }
+
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+    }
+
+    nav ul li a:hover {
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255,255,255,0.7);
+      transform: translateY(-2px);
+    }
+
+    #NavNum {
+      background: rgba(255,255,255,0.1);
+      padding: 8px 20px;
+      border-radius: 30px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255,255,255,0.2);
     }
 
     .search-bar {
-      max-width: 400px;
-      margin: 10px auto;
-      display: flex;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 0 20px;
     }
 
     .search-bar input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      width: 100%;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1.1rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 4px 20px rgba(255,20,147,0.2);
+    }
+
+    .search-bar input::placeholder {
+      color: rgba(255,255,255,0.6);
     }
 
     .card-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
     .card {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 25px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
       position: relative;
-      transition: background-color 0.3s;
+      overflow: hidden;
     }
 
-    .card.highlight {
-      background-color: #e6ffed;
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(255,20,147,0.2);
+      border-color: rgba(255,20,147,0.3);
     }
 
     .card h3 {
-      margin: 0 0 10px;
+      color: #ff1493;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
     }
 
     .card p {
-      margin: 6px 0;
+      margin: 10px 0;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .card strong {
+      color: #ff69b4;
     }
 
     .edit-btn {
-      padding: 6px 12px;
-      background: #007BFF;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
       position: absolute;
       top: 20px;
       right: 20px;
+      padding: 8px 20px;
+      background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(255,20,147,0.3);
+    }
+
+    .edit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255,20,147,0.4);
     }
 
     .modal {
@@ -78,25 +183,101 @@
       background-color: rgba(0,0,0,0.5);
       justify-content: center;
       align-items: center;
+      backdrop-filter: blur(10px);
     }
 
     .modal-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      width: 300px;
+      background: linear-gradient(135deg, #2d3436 0%, #1a1a1a 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 15px;
+      padding: 30px;
+      color: #fff;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+      width: 400px;
+      max-width: 90%;
     }
 
     .modal-content input,
     .modal-content textarea {
       width: 100%;
+      padding: 12px 20px;
       margin: 10px 0;
-      padding: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .modal-content input:focus,
+    .modal-content textarea:focus {
+      outline: none;
+      border-color: #ff1493;
+      box-shadow: 0 0 15px rgba(255,20,147,0.2);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .save-button {
+      background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+      color: #fff;
+    }
+
+    .cancel-button {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .status-pending { color: #ffd700; }
+    .status-accepted { color: #00ff7f; }
+    .status-declined { color: #ff4444; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      animation: fadeIn 0.5s ease forwards;
     }
   </style>
 </head>
 <body>
-  <h1>Appointment Management</h1>
+  <!-- Replace the h1 with the new header -->
+  <header class="header">
+    <a href="./index.html" class="logo">Bayleaf Salon</a>
+    <nav>
+      <ul>
+        <li><a href="./index.html">HOME</a></li>
+        <li><a href="./about.html">ABOUT</a></li>
+        <li><a href="./services.html">SERVICES</a></li>
+        <li><a href="./portfolio.html">PORTFOLIO</a></li>
+        <li><a href="./contact.html">CONTACT</a></li>
+        <li><a href="./login.html">LOGIN</a></li>
+        <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Add a page title section -->
+  <div class="page-title" style="text-align: center; padding: 40px 0;">
+    <h1 style="font-size: 3em; font-weight: 700; color: #ff1493;">Appointment Management</h1>
+    <p style="font-size: 1.2em; color: #ff69b4; margin-top: 10px;">Manage your salon appointments with ease</p>
+  </div>
 
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search by name or date..." />
@@ -107,77 +288,124 @@
   <div class="modal" id="editModal">
     <div class="modal-content">
       <h3>Edit Appointment</h3>
-      <input type="text" id="editName" placeholder="Name" />
+      <input type="text" id="editName" placeholder="Service Name" />
       <input type="datetime-local" id="editDateTime" />
-      <textarea id="editPurpose" placeholder="Purpose"></textarea>
-      <button onclick="saveChanges()">Save Changes</button>
-      <button onclick="closeModal()">Cancel</button>
+      <textarea id="editPurpose" placeholder="Additional Notes" rows="4"></textarea>
+      <div class="modal-buttons">
+        <button class="modal-button save-button" onclick="saveChanges()">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <button class="modal-button cancel-button" onclick="closeModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
     </div>
   </div>
 
   <script>
-    const appointments = [
-      { id: 1, name: "Alice", datetime: "2025-04-20T10:00", purpose: "Consultation" },
-      { id: 2, name: "Bob", datetime: "2025-04-21T14:00", purpose: "Check-up" },
-    ];
+    let appointments = []; // Will be populated from MongoDB
 
-    let currentEditId = null;
+    async function fetchAppointments() {
+        try {
+            const response = await fetch('/api/appointments');
+            if (!response.ok) throw new Error('Failed to fetch appointments');
+            appointments = await response.json();
+            renderAppointments();
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById("appointmentsContainer").innerHTML = 
+                '<p style="color: red; text-align: center;">Failed to load appointments</p>';
+        }
+    }
 
     function renderAppointments() {
-      const container = document.getElementById("appointmentsContainer");
-      container.innerHTML = "";
-      appointments.forEach(app => {
-        const card = document.createElement("div");
-        card.className = `card ${app.highlight ? "highlight" : ""}`;
-        card.innerHTML = `
-          <h3>${app.name}</h3>
-          <p><strong>Date & Time:</strong> ${new Date(app.datetime).toLocaleString()}</p>
-          <p><strong>Purpose:</strong> ${app.purpose}</p>
-          <button class="edit-btn" onclick="openModal(${app.id})">Edit</button>
-        `;
-        container.appendChild(card);
-      });
+        const container = document.getElementById("appointmentsContainer");
+        container.innerHTML = "";
+        
+        if (appointments.length === 0) {
+            container.innerHTML = '<p style="text-align: center;">No appointments found</p>';
+            return;
+        }
+
+        appointments.forEach(app => {
+            const card = document.createElement("div");
+            card.className = `card ${app.highlight ? "highlight" : ""}`;
+            card.innerHTML = `
+                <h3>${app.service}</h3>
+                <p><strong>Date:</strong> ${app.date}</p>
+                <p><strong>Time:</strong> ${app.time}</p>
+                <p><strong>Location:</strong> ${app.location}</p>
+                <p><strong>Status:</strong> ${app.status || 'pending'}</p>
+                <p><strong>Message:</strong> ${app.message || 'No message'}</p>
+                <button class="edit-btn" onclick="openModal('${app._id}')">Edit</button>
+            `;
+            container.appendChild(card);
+        });
     }
 
     function openModal(id) {
-      const app = appointments.find(a => a.id === id);
-      currentEditId = id;
-      document.getElementById("editName").value = app.name;
-      document.getElementById("editDateTime").value = app.datetime;
-      document.getElementById("editPurpose").value = app.purpose;
-      document.getElementById("editModal").style.display = "flex";
+        const app = appointments.find(a => a._id === id);
+        currentEditId = id;
+        document.getElementById("editName").value = app.service;
+        document.getElementById("editDateTime").value = app.date + 'T' + app.time;
+        document.getElementById("editPurpose").value = app.message || '';
+        document.getElementById("editModal").style.display = "flex";
+    }
+
+    async function saveChanges() {
+        const service = document.getElementById("editName").value.trim();
+        const datetime = document.getElementById("editDateTime").value;
+        const message = document.getElementById("editPurpose").value.trim();
+
+        if (!service || !datetime) return alert("Service and datetime are required.");
+
+        const [date, time] = datetime.split('T');
+
+        try {
+            const response = await fetch(`/api/appointments/${currentEditId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    service,
+                    date,
+                    time,
+                    message
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to update');
+            
+            await fetchAppointments(); // Refresh the list
+            closeModal();
+        } catch (error) {
+            alert('Failed to update appointment: ' + error.message);
+        }
     }
 
     function closeModal() {
-      document.getElementById("editModal").style.display = "none";
+        document.getElementById("editModal").style.display = "none";
+        // Clear the form fields
+        document.getElementById("editName").value = '';
+        document.getElementById("editDateTime").value = '';
+        document.getElementById("editPurpose").value = '';
     }
 
-    function saveChanges() {
-      const name = document.getElementById("editName").value.trim();
-      const datetime = document.getElementById("editDateTime").value;
-      const purpose = document.getElementById("editPurpose").value.trim();
+    // Add click outside modal to close
+    document.getElementById("editModal").addEventListener("click", function(event) {
+        if (event.target === this) {
+            closeModal();
+        }
+    });
 
-      if (!name || !datetime || !purpose) return alert("All fields are required.");
-      if (new Date(datetime) < new Date()) return alert("Date cannot be in the past.");
+    // Add escape key to close modal
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
 
-      const app = appointments.find(a => a.id === currentEditId);
-      app.name = name;
-      app.datetime = datetime;
-      app.purpose = purpose;
-      app.highlight = true;
-
-      fetch(`/api/appointments/${currentEditId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(app)
-      })
-      .then(res => res.ok ? res.json() : Promise.reject("Failed to update"))
-      .then(() => {
-        renderAppointments();
-        closeModal();
-      })
-      .catch(alert);
-    }
+    // Initial fetch when page loads
+    document.addEventListener('DOMContentLoaded', fetchAppointments);
 
     document.getElementById("searchInput").addEventListener("input", function () {
       const term = this.value.toLowerCase();
@@ -187,8 +415,6 @@
         card.style.display = text.includes(term) ? "" : "none";
       });
     });
-
-    renderAppointments();
   </script>
 </body>
 </html>
