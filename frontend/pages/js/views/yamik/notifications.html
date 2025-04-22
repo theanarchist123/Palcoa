@@ -243,51 +243,53 @@
             }
 
             function loadNotifications() {
-                const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-                
-                if (notifications.length === 0) {
-                    notificationsContainer.innerHTML = `
-                        <div class="text-center p-4">
-                            <i class="fas fa-bell-slash fa-3x mb-3"></i>
-                            <h4>No Notifications</h4>
-                            <p>You don't have any notifications yet.</p>
-                        </div>
-                    `;
-                    return;
-                }
+    const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
 
-                notificationsContainer.innerHTML = notifications.map((notification, index) => `
-                    <div class="notification-card" id="notification-${index}">
-                        <div class="notification-header">
-                            <div class="notification-icon">
-                                <i class="fas fa-check-circle text-success"></i>
-                            </div>
-                            <div class="notification-info">
-                                <h5>Booking Accepted</h5>
-                                <small>${formatDate(notification.timestamp)}</small>
-                            </div>
-                            <button onclick="dismissNotification(${index})" class="btn-close">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div class="notification-body">
-                            <div class="booking-details">
-                                <p><strong>Service:</strong> ${notification.service}</p>
-                                <p><strong>Date:</strong> ${notification.date}</p>
-                                <p><strong>Time:</strong> ${notification.time}</p>
-                                <p><strong>Location:</strong> ${notification.location}</p>
-                                <p><strong>Stylist:</strong> ${notification.stylist}</p>
-                                <p><strong>Price:</strong> ₹${notification.price}</p>
-                            </div>
-                            <div class="mt-3">
-                                <a href="payment.html?booking=${index}" class="btn btn-primary">
-                                    <i class="fas fa-credit-card"></i> Proceed to Payment
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
+    if (notifications.length === 0) {
+        notificationsContainer.innerHTML = `
+            <div class="text-center p-4">
+                <i class="fas fa-bell-slash fa-3x mb-3"></i>
+                <h4>No Notifications</h4>
+                <p>You don't have any notifications yet.</p>
+            </div>
+        `;
+        return;
+    }
+
+    notificationsContainer.innerHTML = notifications.map((notification, index) => `
+        <div class="notification-card" id="notification-${index}">
+            <div class="notification-header">
+                <div class="notification-icon">
+                    <i class="fas ${notification.type === 'booking_declined' ? 'fa-times-circle text-danger' : 'fa-check-circle text-success'}"></i>
+                </div>
+                <div class="notification-info">
+                    <h5>${notification.type === 'booking_declined' ? 'Booking Declined' : 'Booking Accepted'}</h5>
+                    <small>${new Date(notification.timestamp).toLocaleString()}</small>
+                </div>
+                <button onclick="dismissNotification(${index})" class="btn-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="notification-body">
+                <div class="booking-details">
+                    <p><strong>Service:</strong> ${notification.service}</p>
+                    <p><strong>Date:</strong> ${notification.date}</p>
+                    <p><strong>Time:</strong> ${notification.time}</p>
+                    <p><strong>Location:</strong> ${notification.location}</p>
+                    <p><strong>Stylist:</strong> ${notification.stylist}</p>
+                    <p><strong>Price:</strong> ₹${notification.price}</p>
+                </div>
+                ${notification.type !== 'booking_declined' ? `
+                <div class="mt-3">
+                    <a href="payment.html?booking=${index}" class="btn btn-primary">
+                        <i class="fas fa-credit-card"></i> Proceed to Payment
+                    </a>
+                </div>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
 
             // Function to dismiss notification
             window.dismissNotification = function(index) {
