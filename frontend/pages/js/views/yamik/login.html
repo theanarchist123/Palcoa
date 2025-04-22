@@ -246,31 +246,11 @@
             align-items: center;
             border: 1px solid #ddd;
             transition: transform 0.3s, box-shadow 0.3s;
-            text-decoration: none;
-            color: #555;
         }
 
         .social-icons a:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .social-icons img {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
-        }
-
-        .social-icons .fa-facebook-f {
-            color: #1877f2;
-        }
-
-        .social-icons .fa-google {
-            color: #4285f4;
-        }
-
-        .social-icons .fa-instagram {
-            color: #e4405f;
         }
 
         .notification {
@@ -402,7 +382,7 @@
                 <li id="editAppointmentLink" style="display: none;">
                     <a href="./editAppointment.html">EDIT APPOINTMENT</a>
                 </li>
-                <li><a href="./products.html" id="NavNum">EXPLORE OUR PRODUCTS</a></li>
+                <li><a href="./products.html" id="NavNum">PRODUCTS</a></li>
 
             </ul>
         </nav>
@@ -440,7 +420,9 @@
             <div class="social-text">Or login with</div>
             <div class="social-icons">
                 <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
-                <a href="#" id="google-login-button"><i class="fa-brands fa-google"></i></a>
+                <a href="#" id="google-login-button">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+                </a>
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
             </div>
         </div>
