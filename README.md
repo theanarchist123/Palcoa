@@ -1,5 +1,7 @@
 # Bayleaf Salon - Your Premium Beauty Destination 💅✨
 
+https://drive.google.com/file/d/15hRhCVDy-FwQFHg4qfbulkTPzkreX3yM/view?usp=sharing
+
 A modern, full-stack salon management system built with Node.js, Express, and MongoDB. Bayleaf Salon offers a seamless experience for both customers and salon administrators.
 
 ## ✨ Features
@@ -130,8 +132,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 👥 Team
-
-- Asha Chiplunkar - Owner
 - Nikhil Kadam - Developer
 - Ved Joshi - Developer
 - Aarya Thorat - Developer
@@ -140,7 +140,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 📞 Contact
 
 For any queries, please reach out to:
-- Email: bayleaf.salon.india@gmail.com
+- Email: 2023.nikhil.kadam@ves.ac.in
 - Phone: 7021623887
 - Address: Rajhans wada, Nr. St Joseph Church, Ganesh Nagar, Dombivali (West) - 421202
 
