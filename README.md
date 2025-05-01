@@ -1,7 +1,5 @@
 # Bayleaf Salon - Your Premium Beauty Destination 💅✨
 
-![Bayleaf Salon](frontend/pages/js/views/yamik/img/background180.svg)
-
 A modern, full-stack salon management system built with Node.js, Express, and MongoDB. Bayleaf Salon offers a seamless experience for both customers and salon administrators.
 
 ## ✨ Features
