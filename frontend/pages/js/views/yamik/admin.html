@@ -437,10 +437,10 @@
                     if (requests && requests.length > 0) {
                         requestsContainer.innerHTML = ''; // Clear existing content
                         
+                        // Update the card template in the fetchRequests function
                         requests.forEach(request => {
                             const cardDiv = document.createElement('div');
                             cardDiv.classList.add('request-card');
-                            // Add data-id attribute to identify the card
                             cardDiv.setAttribute('data-id', request._id);
                             
                             cardDiv.innerHTML = `
@@ -449,6 +449,7 @@
                                     <p class="card-text"><i class="fas fa-calendar"></i> ${request.date}</p>
                                     <p class="card-text"><i class="fas fa-clock"></i> ${request.time}</p>
                                     <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${request.location}</p>
+                                    <p class="card-text"><i class="fas fa-envelope"></i> ${request.email}</p>
                                     <p class="card-text"><i class="fas fa-comment"></i> ${request.message || 'No message'}</p>
                                     <div class="d-flex justify-content-between mt-3">
                                         <button class="btn btn-success accept-btn" onclick="handleAccept('${request._id}')">
@@ -456,11 +457,6 @@
                                         </button>
                                         <button class="btn btn-danger decline-btn" onclick="handleDecline('${request._id}')">
                                             <i class="fas fa-times"></i> Decline
-                                        </button>
-                                    </div>
-                                    <div class="payment-section mt-3" style="display: none;">
-                                        <button class="btn btn-primary payment-btn" onclick="handlePayment('${request._id}', ${request.amount || 500})">
-                                            <i class="fas fa-credit-card"></i> Process Payment
                                         </button>
                                     </div>
                                 </div>
@@ -490,36 +486,43 @@
                     if (!response.ok) throw new Error('Failed to accept request');
                     const data = await response.json();
                     
-                    // Find the card element
+                    // Get all notifications
+                    const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+                    
+                    // Add new notification with user's email
+                    notifications.push({
+                        id: requestId,
+                        type: 'booking_accepted',
+                        service: data.request.service,
+                        date: data.request.date,
+                        time: data.request.time,
+                        location: data.request.location,
+                        status: 'accepted',
+                        timestamp: new Date().toISOString(),
+                        read: false,
+                        price: data.request.price || '500',
+                        userEmail: data.request.email // Add user's email to notification
+                    });
+                    
+                    // Save back to localStorage
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+                    
                     const card = document.querySelector(`[data-id="${requestId}"]`);
                     if (card) {
                         // Create success alert
                         const alertDiv = document.createElement('div');
                         alertDiv.className = 'alert alert-success mt-2';
-                        alertDiv.innerHTML = '<i class="fas fa-check-circle"></i> Booking accepted successfully!';
+                        alertDiv.innerHTML = `
+                            <i class="fas fa-check-circle"></i> Booking accepted successfully!
+                            <br>
+                            <small><i class="fas fa-envelope"></i> Notification sent to user</small>
+                        `;
                         card.querySelector('.card-body').appendChild(alertDiv);
-
-                        // Store notification data
-                        const notificationData = {
-                            type: 'booking_accepted',
-                            service: data.request.service,
-                            date: data.request.date,
-                            time: data.request.time,
-                            location: data.request.location,
-                            stylist: data.request.stylist,
-                            price: data.request.price,
-                            timestamp: new Date().toISOString()
-                        };
-
-                        // Get existing notifications or create new array
-                        const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-                        notifications.unshift(notificationData);
-                        localStorage.setItem('notifications', JSON.stringify(notifications));
 
                         // Remove card after delay
                         setTimeout(() => {
                             card.remove();
-                        }, 2000);
+                        }, 3000);
                     }
                 } catch (error) {
                     console.error('Error accepting request:', error);
@@ -528,42 +531,60 @@
             };
 
             // Handle decline button click
-            
-    // Handle decline button click
-    window.handleDecline = async function(requestId) {
-        try {
-            const response = await fetch(`/api/admin-requests/${requestId}/decline`, {
-                method: 'POST',
-            });
+            window.handleDecline = async function(requestId) {
+                try {
+                    const response = await fetch(`/api/admin-requests/${requestId}/decline`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to decline request');
+                    const data = await response.json();
+                    
+                    // Get all notifications
+                    const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+                    
+                    // Add new notification with user's email
+                    notifications.push({
+                        id: requestId,
+                        type: 'booking_declined',
+                        service: data.request.service,
+                        date: data.request.date,
+                        time: data.request.time,
+                        location: data.request.location,
+                        status: 'declined',
+                        timestamp: new Date().toISOString(),
+                        read: false,
+                        userEmail: data.request.email // Add user's email to notification
+                    });
+                    
+                    // Save back to localStorage
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+                    
+                    const card = document.querySelector(`[data-id="${requestId}"]`);
+                    if (card) {
+                        // Create decline alert
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-danger mt-2';
+                        alertDiv.innerHTML = `
+                            <i class="fas fa-times-circle"></i> Booking declined!
+                            <br>
+                            <small><i class="fas fa-envelope"></i> Notification sent to user</small>
+                        `;
+                        card.querySelector('.card-body').appendChild(alertDiv);
 
-            if (!response.ok) throw new Error('Failed to decline request');
-            const data = await response.json(); // Expecting declined request info in response
-
-            // Store decline notification
-            const notificationData = {
-                type: 'booking_declined',
-                service: data.request.service,
-                date: data.request.date,
-                time: data.request.time,
-                location: data.request.location,
-                stylist: data.request.stylist || 'N/A',
-                price: data.request.price || 'N/A',
-                timestamp: new Date().toISOString()
+                        // Remove card after delay
+                        setTimeout(() => {
+                            card.remove();
+                        }, 3000);
+                    }
+                } catch (error) {
+                    console.error('Error declining request:', error);
+                    alert('Failed to decline request. Please try again.');
+                }
             };
-
-            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-            notifications.unshift(notificationData);
-            localStorage.setItem('notifications', JSON.stringify(notifications));
-
-            // Refresh request list
-            fetchRequests();
-        } catch (error) {
-            console.error('Error declining request:', error);
-            alert('Failed to decline request. Please try again.');
-        }
-    };
-
-
 
             // Initial fetch of requests
             fetchRequests();

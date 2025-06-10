@@ -24,6 +24,10 @@ const Order = new Schema({
         type: String, 
         default: "-" 
     },
+    email: { 
+        type: String, 
+        required: [true, 'Email is required'] 
+    },
     status: {
         type: String,
         enum: ['pending', 'accepted', 'declined'],

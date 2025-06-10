@@ -166,224 +166,227 @@
 
     <script src="./script.js"></script>
     <script>
-        function showNotification(message, isError = false) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.style.display = 'block';
-            notification.style.backgroundColor = isError ? '#ff4444' : '#44b744';
-            notification.style.color = 'white';
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 5000); // Increased timeout for better readability
+// Store the form reference
+const appointmentForm = document.getElementById('appointmentForm');
+
+async function submitForm(event) {
+    event.preventDefault();
+    
+    // Get user data from session storage
+    const userData = JSON.parse(sessionStorage.getItem('bayleafUser') || '{}');
+    
+    // Debug log to check user data
+    console.log('Current user data:', userData);
+
+    // Check if user is logged in
+    if (!userData || !userData.email) {
+        showNotification('Please log in to book an appointment', true);
+        return;
+    }
+
+    // Get form values
+    const formData = {
+        service: document.getElementById('service').value,
+        date: document.getElementById('date').value,
+        time: document.getElementById('time').value,
+        location: document.getElementById('location').value,
+        message: document.getElementById('message').value || "-",
+        email: userData.email // Include user's email from session
+    };
+
+    console.log('Submitting appointment with data:', formData);
+
+    try {
+        const response = await fetch('/request', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification('Request sent successfully! We will contact you soon.');
+            appointmentForm.reset();
+        } else {
+            showNotification(data.error || 'Failed to send request', true);
         }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Network error. Please try again.', true);
+    }
+}
 
-        async function submitForm(event) {
-            event.preventDefault();
-            
-            // Get form values
-            const service = document.getElementById('service').value;
-            const date = document.getElementById('date').value;
-            const time = document.getElementById('time').value;
-            const location = document.getElementById('location').value;
-            const message = document.getElementById('message').value;
+function showNotification(message, isError = false) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.display = 'block';
+    notification.style.backgroundColor = isError ? '#ff4444' : '#44b744';
+    notification.style.color = 'white';
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
 
-            // Validate required fields
-            if (!service || !date || !time || !location) {
-                showNotification('Please fill in all required fields', true);
-                return;
-            }
+// Set minimum date to today for the date input
+document.getElementById('date').min = new Date().toISOString().split('T')[0];
 
-            const formData = {
-                service: service,
-                date: date,
-                time: time,
-                location: location,
-                message: message || "-"
-            };
+// Add form submit event listener
+appointmentForm.addEventListener('submit', submitForm);
 
-            console.log('Sending form data:', formData); // Debug log
-
-            try {
-                const response = await fetch('/request', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                // Get response text first
-                const responseText = await response.text();
-                console.log('Response text:', responseText);
-                
-                // Try to parse as JSON
-                let data;
-                try {
-                    data = JSON.parse(responseText);
-                } catch (e) {
-                    console.error('Error parsing response:', e);
-                    showNotification('Unexpected server response format', true);
-                    return;
-                }
-                
-                if (response.ok) {
-                    showNotification('Request sent successfully! We will contact you soon.');
-                    document.getElementById('appointmentForm').reset();
-                } else {
-                    // More detailed error handling
-                    let errorMessage = 'Failed to send request';
-                    if (data.error) {
-                        errorMessage = data.error;
-                        if (data.details) {
-                            errorMessage += ': ' + data.details;
-                        }
-                    }
-                    showNotification(errorMessage, true);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Network error. Please check your connection and try again.', true);
-            }
+// Check login status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const userData = sessionStorage.getItem('bayleafUser');
+    console.log('Checking user session on page load:', userData);
+    
+    if (userData) {
+        const user = JSON.parse(userData);
+        console.log('User is logged in:', user);
+        // Show profile link if logged in
+        const loginLink = document.getElementById('loginLink');
+        if (loginLink) {
+            loginLink.innerHTML = `
+                <div class="user-profile-container">
+                    <span class="user-avatar-small">${user.firstName.charAt(0)}</span>
+                    ${user.firstName}
+                </div>`;
+            loginLink.style.cursor = 'pointer';
         }
+    }
+});
 
-        // Set minimum date to today
-        document.getElementById('date').min = new Date().toISOString().split('T')[0];
+// Update JavaScript event handlers
+document.addEventListener('DOMContentLoaded', function() {
+    const loginLink = document.getElementById('loginLink');
+    const userData = sessionStorage.getItem('bayleafUser');
 
-        // Script to manage user authentication state
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginLink = document.getElementById('loginLink');
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
             
-            // Check if user is logged in (stored in sessionStorage)
-            const userData = sessionStorage.getItem('bayleafUser');
-            
-            if (userData) {
-                try {
-                    // Parse user data
-                    const user = JSON.parse(userData);
-                    
-                    // Replace login link with user profile button
-                    if (loginLink) {
-                        console.log("Setting up user profile popup");
-                        
-                        // Create click handler for the login link
-                        loginLink.removeAttribute('href');
-                        loginLink.setAttribute('data-name', `${user.firstName} ${user.lastName}`);
-                        loginLink.setAttribute('data-email', user.email);
-                        loginLink.setAttribute('data-phone', user.phone);
-                        loginLink.setAttribute('data-initial', user.firstName.charAt(0));
-                        loginLink.innerHTML = user.firstName;
-                        loginLink.style.cursor = 'pointer';
-                        
-                        // Create modal overlay
-                        const modalOverlay = document.createElement('div');
-                        modalOverlay.className = 'profile-modal-overlay';
-                        modalOverlay.id = 'profileModalOverlay';
-                        
-                        // Create profile card HTML
-                        modalOverlay.innerHTML = `
-                            <div class="user-profile-card" id="profileCard">
-                                <div class="profile-card-content">
-                                    <button class="close-profile-card" id="closeProfileCard">×</button>
-                                    <div class="user-avatar">N</div>
-                                    <div class="user-profile-header">
-                                        <div class="user-profile-info">
-                                            <div class="user-profile-name">NIKHIL KADAM</div>
-                                            <div class="user-profile-role">Premium Member</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="user-profile-details">
-                                        <div class="user-profile-detail">
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"></path>
-                                            </svg>
-                                            <span>nikhilrkadam2005@gmail.com</span>
-                                        </div>
-                                        <div class="user-profile-detail">
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
-                                            </svg>
-                                            <span>+91 98765 43210</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="user-profile-actions">
-                                        <a href="profile.html" class="profile-action-btn profile-view-btn">
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                                            </svg>
-                                            View Profile
-                                        </a>
-                                        <a href="#" id="logoutBtn" class="profile-action-btn profile-logout-btn">
-                                            <svg viewBox="0 0 24 24">
-                                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path>
-                                            </svg>
-                                            Logout
-                                        </a>
-                                    </div>
+            if (loginLink) {
+                // Create modal overlay
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'profile-modal-overlay';
+                modalOverlay.id = 'profileModalOverlay';
+                
+                // Create profile card HTML
+                modalOverlay.innerHTML = `
+                    <div class="user-profile-card" id="profileCard">
+                        <div class="profile-card-content">
+                            <button class="close-profile-card" id="closeProfileCard">×</button>
+                            <div class="user-avatar">${user.firstName.charAt(0)}</div>
+                            <div class="user-profile-header">
+                                <div class="user-profile-info">
+                                    <div class="user-profile-name">${user.firstName} ${user.lastName}</div>
+                                    <div class="user-profile-role">Premium Member</div>
                                 </div>
                             </div>
-                        `;
-                        
-                        // Append the modal to the body
-                        document.body.appendChild(modalOverlay);
-                        
-                        // Add event listener to open modal
-                        loginLink.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            console.log("Profile button clicked, showing modal");
                             
-                            // Position the card directly under the name link
-                            const profileCard = document.getElementById('profileCard');
-                            const rect = loginLink.getBoundingClientRect();
-                            
-                            // Calculate appropriate position
-                            let topPosition = (rect.bottom + window.scrollY);
-                            let leftPosition = (rect.left - 160 + rect.width/2); // Center the card under the name
-                            
-                            // Ensure the card stays within viewport bounds
-                            const viewportWidth = window.innerWidth;
-                            if (leftPosition + 320 > viewportWidth) {
-                                leftPosition = viewportWidth - 340; // 20px margin from right edge
-                            }
-                            if (leftPosition < 20) {
-                                leftPosition = 20; // 20px margin from left edge
-                            }
-                            
-                            profileCard.style.top = topPosition + 'px';
-                            profileCard.style.left = leftPosition + 'px';
-                            
-                            document.getElementById('profileModalOverlay').classList.add('active');
-                        });
-                        
-                        // Close button event
-                        document.getElementById('closeProfileCard').addEventListener('click', function() {
-                            document.getElementById('profileModalOverlay').classList.remove('active');
-                        });
-                        
-                        // Close when clicking overlay background
-                        modalOverlay.addEventListener('click', function(e) {
-                            if (e.target === modalOverlay) {
-                                modalOverlay.classList.remove('active');
-                            }
-                        });
-                        
-                        // Logout functionality
-                        document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                            e.preventDefault();
-                            console.log("Logout button clicked");
-                            sessionStorage.removeItem('bayleafUser');
-                            window.location.href = 'index.html';
-                        });
+                            <div class="user-profile-details">
+                                <div class="user-profile-detail">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"></path>
+                                    </svg>
+                                    <span>${user.email}</span>
+                                </div>
+                            </div>
+                            <div class="user-profile-actions">
+                                <a href="profile.html" class="profile-action-btn profile-view-btn">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+                                    </svg>
+                                    View Profile
+                                </a>
+                                <a href="#" id="logoutBtn" class="profile-action-btn profile-logout-btn">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"></path>
+                                    </svg>
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modalOverlay);
+                
+                // Update login link
+                loginLink.innerHTML = user.firstName;
+                loginLink.style.cursor = 'pointer';
+                
+                // Toggle profile card
+                loginLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const profileCard = document.getElementById('profileCard');
+                    const modalOverlay = document.getElementById('profileModalOverlay');
+                    
+                    // Calculate position
+                    const rect = loginLink.getBoundingClientRect();
+                    let topPosition = (rect.bottom + window.scrollY);
+                    let leftPosition = (rect.left - 160 + rect.width/2);
+                    
+                    // Ensure card stays within viewport bounds
+                    const viewportWidth = window.innerWidth;
+                    if (leftPosition + 320 > viewportWidth) {
+                        leftPosition = viewportWidth - 340;
                     }
-                } catch (error) {
-                    console.error('Error parsing user data:', error);
-                    // If there's an error, clear the invalid data
+                    if (leftPosition < 20) {
+                        leftPosition = 20;
+                    }
+                    
+                    profileCard.style.top = topPosition + 'px';
+                    profileCard.style.left = leftPosition + 'px';
+                    
+                    profileCard.style.display = 'block';
+                    modalOverlay.style.display = 'block';
+                });
+
+                // Close profile card
+                document.getElementById('closeProfileCard').addEventListener('click', function() {
+                    const profileCard = document.getElementById('profileCard');
+                    const modalOverlay = document.getElementById('profileModalOverlay');
+                    profileCard.style.display = 'none';
+                    modalOverlay.style.display = 'none';
+                });
+
+                // Close when clicking overlay
+                modalOverlay.addEventListener('click', function(e) {
+                    if (e.target === modalOverlay) {
+                        const profileCard = document.getElementById('profileCard');
+                        profileCard.style.display = 'none';
+                        modalOverlay.style.display = 'none';
+                    }
+                });
+
+                // Handle logout
+                document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                    e.preventDefault();
                     sessionStorage.removeItem('bayleafUser');
-                }
+                    window.location.href = 'index.html';
+                });
+
+                // Close on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        const profileCard = document.getElementById('profileCard');
+                        const modalOverlay = document.getElementById('profileModalOverlay');
+                        if (profileCard.style.display === 'block') {
+                            profileCard.style.display = 'none';
+                            modalOverlay.style.display = 'none';
+                        }
+                    }
+                });
             }
-        });
-    </script>
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+            sessionStorage.removeItem('bayleafUser');
+        }
+    }
+});
+</script>
     
     <style>
         /* Profile popup card - Clean simple design */
@@ -399,6 +402,8 @@
             position: fixed;
             animation: fadeIn 0.3s ease;
             overflow: hidden;
+            top:71px;
+            right: 208px;
         }
         
         @keyframes fadeIn {

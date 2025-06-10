@@ -279,6 +279,18 @@
     <p style="font-size: 1.2em; color: #ff69b4; margin-top: 10px;">Manage your salon appointments with ease</p>
   </div>
 
+  <!-- Login required message - will be shown/hidden via JavaScript -->
+  <div id="loginMessage" style="display: none; text-align: center; padding: 40px 20px;">
+    <div style="max-width: 500px; margin: 0 auto; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 15px;">
+      <i class="fas fa-lock" style="font-size: 3em; color: #ff69b4; margin-bottom: 20px;"></i>
+      <h2 style="color: #ff1493; margin-bottom: 15px;">Please Log In First</h2>
+      <p style="color: #e0e0e0; margin-bottom: 25px;">You need to be logged in to view your appointments.</p>
+      <a href="./login.html" class="modal-button save-button" style="text-decoration: none; display: inline-block; padding: 12px 30px;">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </a>
+    </div>
+  </div>
+
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search by name or date..." />
   </div>
@@ -305,26 +317,101 @@
   <script>
     let appointments = [];
     const appointmentsContainer = document.getElementById('appointmentsContainer');
+    const searchBar = document.querySelector('.search-bar');
+    const loginMessage = document.getElementById('loginMessage');
+    let currentEditId = null;
+
+    // Check login status
+    function checkLoginStatus() {
+      const userData = sessionStorage.getItem('bayleafUser');
+      if (!userData) {
+        // Hide appointments content
+        appointmentsContainer.style.display = 'none';
+        searchBar.style.display = 'none';
+        // Show login message
+        loginMessage.style.display = 'block';
+        return false;
+      }
+      // Show appointments content
+      appointmentsContainer.style.display = 'grid';
+      searchBar.style.display = 'block';
+      // Hide login message
+      loginMessage.style.display = 'none';
+      return true;
+    }
+
+    function editAppointment(id) {
+        const appointment = appointments.find(app => app._id === id);
+        if (!appointment) {
+            alert('Appointment not found');
+            return;
+        }
+
+        currentEditId = id;
+        
+        // Populate modal with appointment data
+        document.getElementById("editName").value = appointment.service;
+        document.getElementById("editDateTime").value = `${appointment.date}T${appointment.time}`;
+        document.getElementById("editPurpose").value = appointment.message || '';
+
+        // Show modal
+        document.getElementById("editModal").style.display = "flex";
+    }
 
     async function fetchAppointments() {
+        // First check if user is logged in
+        if (!checkLoginStatus()) {
+            return;
+        }
+
         try {
             // Show loading state
-            appointmentsContainer.innerHTML = '<div class="loading">Loading appointments...</div>';
+            appointmentsContainer.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading appointments...</p>
+                </div>`;
             
             const response = await fetch('/api/appointments');
-            console.log('Response status:', response.status); // Debug log
+            console.log('Response status:', response.status);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const data = await response.json();
-            console.log('Fetched data:', data); // Debug log
+            console.log('Fetched appointments:', data);
             
             appointments = data;
-            renderAppointments();
+
+            if (!appointments || appointments.length === 0) {
+                appointmentsContainer.innerHTML = `
+                    <div class="no-appointments">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>No appointments found</p>
+                    </div>`;
+                return;
+            }
+
+            // Render appointments in cards
+            appointmentsContainer.innerHTML = appointments.map(app => `
+                <div class="card" data-id="${app._id}">
+                    <div class="card-body">
+                        <h3>${app.service}</h3>
+                        <p><strong>Date:</strong> ${app.date}</p>
+                        <p><strong>Time:</strong> ${app.time}</p>
+                        <p><strong>Location:</strong> ${app.location || 'Not specified'}</p>
+                        ${app.message ? `<p><strong>Notes:</strong> ${app.message}</p>` : ''}
+                        <p><strong>Status:</strong> <span class="status-${app.status || 'pending'}">${app.status || 'Pending'}</span></p>
+                        <button class="edit-btn" onclick="editAppointment('${app._id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
         } catch (error) {
-            console.error('Error fetching appointments:', error);
+            console.error('Error:', error);
             appointmentsContainer.innerHTML = `
                 <div class="error-message">
                     <i class="fas fa-exclamation-circle"></i>
@@ -334,52 +421,30 @@
         }
     }
 
-    function renderAppointments() {
-        if (!appointments || appointments.length === 0) {
-            appointmentsContainer.innerHTML = `
-                <div class="no-appointments">
-                    <i class="fas fa-calendar-times"></i>
-                    <p>No appointments found</p>
-                </div>`;
+    async function saveChanges() {
+        if (!currentEditId) {
+            alert('No appointment selected for editing');
             return;
         }
 
-        appointmentsContainer.innerHTML = appointments.map(app => `
-            <div class="appointment-card ${app.status || 'pending'}" data-id="${app._id}">
-                <div class="appointment-header">
-                    <h3>${app.service}</h3>
-                    <span class="status-badge ${app.status || 'pending'}">
-                        ${app.status || 'Pending'}
-                    </span>
-                </div>
-                <div class="appointment-details">
-                    <p><i class="fas fa-calendar"></i> ${app.date}</p>
-                    <p><i class="fas fa-clock"></i> ${app.time}</p>
-                    <p><i class="fas fa-map-marker-alt"></i> ${app.location}</p>
-                    ${app.message ? `<p><i class="fas fa-comment"></i> ${app.message}</p>` : ''}
-                </div>
-                <div class="appointment-actions">
-                    <button onclick="editAppointment('${app._id}')" class="edit-btn">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    async function saveChanges() {
         const service = document.getElementById("editName").value.trim();
         const datetime = document.getElementById("editDateTime").value;
         const message = document.getElementById("editPurpose").value.trim();
 
-        if (!service || !datetime) return alert("Service and datetime are required.");
+        if (!service || !datetime) {
+            alert("Service and datetime are required.");
+            return;
+        }
 
         const [date, time] = datetime.split('T');
 
         try {
             const response = await fetch(`/api/appointments/${currentEditId}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
                 body: JSON.stringify({
                     service,
                     date,
@@ -388,8 +453,10 @@
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to update');
-            
+            if (!response.ok) {
+                throw new Error('Failed to update appointment');
+            }
+
             await fetchAppointments(); // Refresh the list
             closeModal();
         } catch (error) {
@@ -421,6 +488,19 @@
 
     // Initial fetch when page loads
     document.addEventListener('DOMContentLoaded', fetchAppointments);
+
+    // Check login status when page loads
+    document.addEventListener('DOMContentLoaded', checkLoginStatus);
+
+    // Add event listener for storage changes (in case user logs in/out in another tab)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'bayleafUser') {
+            checkLoginStatus();
+            if (e.newValue) { // If logged in
+                fetchAppointments();
+            }
+        }
+    });
 
     document.getElementById("searchInput").addEventListener("input", function () {
       const term = this.value.toLowerCase();

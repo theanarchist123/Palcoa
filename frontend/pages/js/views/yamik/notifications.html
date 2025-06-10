@@ -179,6 +179,36 @@
             margin: 0 auto;
         }
 
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .status-badge.accepted {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.declined {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .notification-card.declined {
+            border-left: 4px solid #dc3545;
+        }
+
+        .notification-card.accepted {
+            border-left: 4px solid #28a745;
+        }
+
         @media (max-width: 768px) {
             .notifications-container {
                 padding: 0 1rem;
@@ -244,25 +274,31 @@
 
             function loadNotifications() {
                 const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-                if (!Array.isArray(notifications) || notifications.length === 0) {
+                const userData = JSON.parse(sessionStorage.getItem('bayleafUser') || '{}');
+                const userEmail = userData.email;
+
+                // Filter notifications for current user only
+                const userNotifications = notifications.filter(notification => notification.userEmail === userEmail);
+
+                if (!userNotifications || userNotifications.length === 0) {
                     notificationsContainer.innerHTML = `
-                        <div class="text-center p-4">
-                            <i class="fas fa-bell-slash fa-3x mb-3"></i>
-                            <h4>No Notifications</h4>
+                        <div class="empty-notifications">
+                            <i class="fas fa-bell-slash"></i>
+                            <h3>No Notifications</h3>
                             <p>You don't have any notifications yet.</p>
                         </div>
                     `;
                     return;
                 }
 
-                notificationsContainer.innerHTML = notifications.map((notification, index) => `
-                    <div class="notification-card" id="notification-${index}">
+                notificationsContainer.innerHTML = userNotifications.map((notification, index) => `
+                    <div class="notification-card ${notification.status}" id="notification-${index}">
                         <div class="notification-header">
                             <div class="notification-icon">
-                                <i class="fas fa-check-circle text-success"></i>
+                                ${getNotificationIcon(notification.type)}
                             </div>
                             <div class="notification-info">
-                                <h5>Booking Accepted</h5>
+                                <h5>${getNotificationTitle(notification.type)}</h5>
                                 <small>${formatDate(notification.timestamp)}</small>
                             </div>
                             <button onclick="dismissNotification(${index})" class="btn-close">
@@ -275,17 +311,48 @@
                                 <p><strong>Date:</strong> ${notification.date || ''}</p>
                                 <p><strong>Time:</strong> ${notification.time || ''}</p>
                                 <p><strong>Location:</strong> ${notification.location || ''}</p>
-                                <p><strong>Status:</strong> ${notification.status || 'Accepted'}</p>
-                                <p><strong>Price:</strong> ₹${notification.price || '500'}</p>
+                                <p><strong>Status:</strong> <span class="status-badge ${notification.status}">${notification.status || 'Pending'}</span></p>
+                                ${notification.message ? `<p><strong>Message:</strong> ${notification.message}</p>` : ''}
                             </div>
-                            <div class="mt-3">
-                                <button onclick='handlePayment(${JSON.stringify({ ...notification, index })})' class="btn btn-primary">
-                                    <i class="fas fa-credit-card"></i> Pay Now
-                                </button>
-                            </div>
+                            ${showPaymentButton(notification)}
                         </div>
                     </div>
                 `).join('');
+            }
+
+            function getNotificationIcon(type) {
+                switch(type) {
+                    case 'booking_accepted':
+                        return '<i class="fas fa-check-circle text-success"></i>';
+                    case 'booking_declined':
+                        return '<i class="fas fa-times-circle text-danger"></i>';
+                    default:
+                        return '<i class="fas fa-bell text-primary"></i>';
+                }
+            }
+
+            function getNotificationTitle(type) {
+                switch(type) {
+                    case 'booking_accepted':
+                        return 'Booking Accepted';
+                    case 'booking_declined':
+                        return 'Booking Cancelled';
+                    default:
+                        return 'Booking Update';
+                }
+            }
+
+            function showPaymentButton(notification) {
+                if (notification.status === 'declined') {
+                    return '';
+                }
+                return `
+                    <div class="mt-3">
+                        <button onclick='handlePayment(${JSON.stringify({ ...notification })})' class="btn btn-primary">
+                            <i class="fas fa-credit-card"></i> Pay Now
+                        </button>
+                    </div>
+                `;
             }
 
             window.dismissNotification = function(index) {

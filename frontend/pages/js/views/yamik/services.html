@@ -31,7 +31,7 @@
                 <li><a href="./portfolio.html">PORTFOLIO</a></li>
                 <li><a href="./contact.html">CONTACT</a></li>
                 <li><a href="./appointment_edit.html">APPOINTMENTS</a></li>
-                <li><a href="./login.html" id="loginLink">LOGIN</a></li>
+                
                 <li><a href="./products.html" id="NavNum">PRODUCTS</a></li>
             </ul>
         </nav>
@@ -197,7 +197,7 @@
                 <li><a href="./index.html">Home</a></li>
                 <li><a href="./about.html">About</a></li>
                 <li><a href="./services.html">Services</a></li>
-                <li><a href="./protfolio.html">Portfolio</a></li>
+                <li><a href="./portfolio.html">Portfolio</a></li>
                 <li><a href="./contact.html">Contact</a></li>
             </ul>
 
@@ -257,15 +257,17 @@
                     
                     // Replace login link with user profile button
                     if (loginLink) {
-                        console.log("Setting up user profile popup");
-                        
                         // Create click handler for the login link
                         loginLink.removeAttribute('href');
                         loginLink.setAttribute('data-name', `${user.firstName} ${user.lastName}`);
                         loginLink.setAttribute('data-email', user.email);
                         loginLink.setAttribute('data-phone', user.phone);
                         loginLink.setAttribute('data-initial', user.firstName.charAt(0));
-                        loginLink.innerHTML = user.firstName;
+                        loginLink.innerHTML = `
+                            <div class="user-profile-container">
+                                <span class="user-avatar-small">${user.firstName.charAt(0)}</span>
+                                ${user.firstName}
+                            </div>`;
                         loginLink.style.cursor = 'pointer';
                         
                         // Create modal overlay
@@ -278,10 +280,10 @@
                             <div class="user-profile-card" id="profileCard">
                                 <div class="profile-card-content">
                                     <button class="close-profile-card" id="closeProfileCard">×</button>
-                                    <div class="user-avatar">N</div>
+                                    <div class="user-avatar">${user.firstName.charAt(0)}</div>
                                     <div class="user-profile-header">
                                         <div class="user-profile-info">
-                                            <div class="user-profile-name">NIKHIL KADAM</div>
+                                            <div class="user-profile-name">${user.firstName} ${user.lastName}</div>
                                             <div class="user-profile-role">Premium Member</div>
                                         </div>
                                     </div>
@@ -291,13 +293,13 @@
                                             <svg viewBox="0 0 24 24">
                                                 <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"></path>
                                             </svg>
-                                            <span>nikhilrkadam2005@gmail.com</span>
+                                            <span>${user.email}</span>
                                         </div>
                                         <div class="user-profile-detail">
                                             <svg viewBox="0 0 24 24">
                                                 <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
                                             </svg>
-                                            <span>+91 98765 43210</span>
+                                            <span>${user.phone || 'Not provided'}</span>
                                         </div>
                                     </div>
                                     
@@ -325,40 +327,44 @@
                         // Add event listener to open modal
                         loginLink.addEventListener('click', function(e) {
                             e.preventDefault();
-                            console.log("Profile button clicked, showing modal");
-                            
-                            // Position the card directly under the name link
                             const profileCard = document.getElementById('profileCard');
+                            const modalOverlay = document.getElementById('profileModalOverlay');
+                            
+                            // Calculate position
                             const rect = loginLink.getBoundingClientRect();
-                            
-                            // Calculate appropriate position
                             let topPosition = (rect.bottom + window.scrollY);
-                            let leftPosition = (rect.left - 160 + rect.width/2); // Center the card under the name
+                            let leftPosition = (rect.left - 160 + rect.width/2);
                             
-                            // Ensure the card stays within viewport bounds
+                            // Ensure card stays within viewport bounds
                             const viewportWidth = window.innerWidth;
                             if (leftPosition + 320 > viewportWidth) {
-                                leftPosition = viewportWidth - 340; // 20px margin from right edge
+                                leftPosition = viewportWidth - 340;
                             }
                             if (leftPosition < 20) {
-                                leftPosition = 20; // 20px margin from left edge
+                                leftPosition = 20;
                             }
                             
                             profileCard.style.top = topPosition + 'px';
                             profileCard.style.left = leftPosition + 'px';
                             
-                            document.getElementById('profileModalOverlay').classList.add('active');
+                            profileCard.style.display = 'block';
+                            modalOverlay.style.display = 'block';
                         });
                         
                         // Close button event
                         document.getElementById('closeProfileCard').addEventListener('click', function() {
-                            document.getElementById('profileModalOverlay').classList.remove('active');
+                            const profileCard = document.getElementById('profileCard');
+                            const modalOverlay = document.getElementById('profileModalOverlay');
+                            profileCard.style.display = 'none';
+                            modalOverlay.style.display = 'none';
                         });
                         
                         // Close when clicking overlay background
                         modalOverlay.addEventListener('click', function(e) {
                             if (e.target === modalOverlay) {
-                                modalOverlay.classList.remove('active');
+                                const profileCard = document.getElementById('profileCard');
+                                profileCard.style.display = 'none';
+                                modalOverlay.style.display = 'none';
                             }
                         });
                         
@@ -368,6 +374,18 @@
                             console.log("Logout button clicked");
                             sessionStorage.removeItem('bayleafUser');
                             window.location.href = 'index.html';
+                        });
+                        
+                        // Add escape key handler if not already present
+                        document.addEventListener('keydown', function(e) {
+                            if (e.key === 'Escape') {
+                                const profileCard = document.getElementById('profileCard');
+                                const modalOverlay = document.getElementById('profileModalOverlay');
+                                if (profileCard.style.display === 'block') {
+                                    profileCard.style.display = 'none';
+                                    modalOverlay.style.display = 'none';
+                                }
+                            }
                         });
                     }
                 } catch (error) {

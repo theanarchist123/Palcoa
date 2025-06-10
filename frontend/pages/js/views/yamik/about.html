@@ -33,8 +33,8 @@
                 <li><a href="./services.html">SERVICES</a></li>
                 <li><a href="./portfolio.html">PORTFOLIO</a></li>
                 <li><a href="./contact.html">CONTACT</a></li>
-                <li><a href="./login.html" id="loginLink">LOGIN</a></li>
                 <li><a href="./appointment_edit.html">APPOINTMENTS</a></li>
+                <li><a href="./login.html" id="loginLink">LOGIN</a></li>
                 <li><a href="./products.html" id="NavNum">PRODUCTS</a></li>
             </ul>
         </nav>
@@ -65,16 +65,9 @@
             </div>
             </p>
 
-            <h2>Nikhil Kadam</h2>
+           
 
-            <div class="iconLink">
-                <i class="fa-solid fa-phone">
-                    <a href="#">+91 7021623887</a>
-                </i>
-                <i class="fa-solid fa-envelope">
-                    <a href="#">nikhilrkadam2005@gmail.com</a>
-                </i>
-            </div>
+
         </div>
     </section>
 
@@ -225,7 +218,7 @@
                         
                         // Create profile card HTML
                         modalOverlay.innerHTML = `
-                            <div class="user-profile-card" id="profileCard">
+                            <div class="user-profile-card" id="profileCard" style="top:74.2px; left: 1010.74px;">
                                 <div class="profile-card-content">
                                     <button class="close-profile-card" id="closeProfileCard">×</button>
                                     <div class="user-avatar">N</div>
@@ -324,6 +317,44 @@
                     console.error('Error parsing user data:', error);
                     // If there's an error, clear the invalid data
                     sessionStorage.removeItem('bayleafUser');
+                }
+            }
+        });
+
+        // Inside the DOMContentLoaded event listener
+        loginLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const profileCard = document.getElementById('profileCard');
+            const modalOverlay = document.getElementById('profileModalOverlay');
+            profileCard.style.display = 'block';
+            modalOverlay.style.display = 'block';
+        });
+
+        // Close profile card
+        document.getElementById('closeProfileCard').addEventListener('click', function() {
+            const profileCard = document.getElementById('profileCard');
+            const modalOverlay = document.getElementById('profileModalOverlay');
+            profileCard.style.display = 'none';
+            modalOverlay.style.display = 'none';
+        });
+
+        // Close when clicking overlay
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                const profileCard = document.getElementById('profileCard');
+                profileCard.style.display = 'none';
+                modalOverlay.style.display = 'none';
+            }
+        });
+
+        // Add escape key handler
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const profileCard = document.getElementById('profileCard');
+                const modalOverlay = document.getElementById('profileModalOverlay');
+                if (profileCard.style.display === 'block') {
+                    profileCard.style.display = 'none';
+                    modalOverlay.style.display = 'none';
                 }
             }
         });

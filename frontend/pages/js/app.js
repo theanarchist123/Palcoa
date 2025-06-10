@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
+const { sendBookingStatusEmail } = require(path.join(__dirname, '../../../backend/utils/emailService')); // Use absolute path
 const R1 = require('./salon');
 const User = require('./user');
 const https = require('https');
@@ -36,7 +37,6 @@ mongoose.connect('mongodb+srv://2023nikhilkadam:goodies987@cluster0.jpngk94.mong
     console.error("MongoDB Connection Error:", err);
 });
 
-// Handle MongoDB connection errors
 mongoose.connection.on('error', err => {
     console.error('MongoDB connection error:', err);
 });
@@ -117,7 +117,6 @@ app.post('/api/register', async (req, res) => {
 
         const { firstName, lastName, email, phone, password } = req.body;
 
-        // Validate required fields
         if (!firstName || !lastName || !email || !phone || !password) {
             return res.status(400).json({
                 success: false,
@@ -125,7 +124,6 @@ app.post('/api/register', async (req, res) => {
             });
         }
 
-        // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({
@@ -134,17 +132,15 @@ app.post('/api/register', async (req, res) => {
             });
         }
 
-        // Create new user
         const newUser = new User({
             firstName,
             lastName,
             email,
             phone,
-            password, // In production, hash this password
+            password,
             createdAt: new Date()
         });
 
-        // Save user
         await newUser.save();
 
         res.status(201).json({
@@ -166,7 +162,6 @@ app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         
-        // Validate inputs
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -175,11 +170,9 @@ app.post('/api/login', async (req, res) => {
             });
         }
         
-        // Find user by email
         const user = await User.findOne({ email });
         
-        // Check if user exists and password matches
-        if (!user || user.password !== password) { // In a real app, you would use bcrypt.compare()
+        if (!user || user.password !== password) {
             return res.status(401).json({
                 success: false,
                 error: "Invalid credentials",
@@ -187,7 +180,6 @@ app.post('/api/login', async (req, res) => {
             });
         }
         
-        // User authenticated successfully
         res.status(200).json({
             success: true,
             message: "Login successful",
@@ -208,38 +200,45 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Contact form submission
+// Update contact form submission endpoint
 app.post('/request', async (req, res) => {
     try {
-        console.log("Contact form submission received!");
-        console.log("Form data:", req.body);
+        console.log("Contact form submission received:", req.body);
 
-        // Validate required fields
-        if (!req.body.service || !req.body.date || !req.body.time || !req.body.location) {
+        // Validate required fields including email
+        if (!req.body.service || !req.body.date || !req.body.time || !req.body.location || !req.body.email) {
+            console.log("Missing required fields:", req.body);
             return res.status(400).json({ 
+                success: false,
                 error: "Missing required fields",
                 details: "All fields are required except message"
             });
         }
 
+        // Create new appointment request
         const newRequest = new R1({
             service: req.body.service,
             date: req.body.date,
             time: req.body.time,
             location: req.body.location,
             message: req.body.message || "-",
+            email: req.body.email,
+            status: 'pending',
             createdAt: new Date()
         });
 
         const savedRequest = await newRequest.save();
         console.log("Request saved successfully:", savedRequest);
+        
         res.status(200).json({ 
+            success: true,
             message: "Request saved successfully",
             data: savedRequest
         });
     } catch (error) {
         console.error("Error saving request:", error);
         res.status(500).json({ 
+            success: false,
             error: "Error saving your request",
             details: error.message 
         });
@@ -260,7 +259,9 @@ app.get('/admin-requests', async (req, res) => {
 // Get all admin requests
 app.get('/api/admin-requests', async (req, res) => {
     try {
-        const requests = await R1.find({}).sort({ createdAt: -1 });
+        const requests = await R1.find()
+            .sort({ createdAt: -1 })
+            .select('service date time location message email status createdAt');
         res.json(requests);
     } catch (error) {
         console.error("Error fetching requests:", error);
@@ -276,32 +277,32 @@ app.post('/api/admin-requests/:id/accept', async (req, res) => {
     try {
         const request = await R1.findByIdAndUpdate(
             req.params.id,
-            { 
-                status: 'accepted',
-                stylist: 'Assigned Stylist', // You can modify this based on your needs
-                price: '500' // You can modify this based on your needs
-            },
+            { status: 'accepted' },
             { new: true }
         );
-        
+
         if (!request) {
             return res.status(404).json({ error: 'Request not found' });
         }
-        
-        res.json({ 
-            message: 'Request accepted successfully', 
-            request: {
-                ...request.toObject(),
-                stylist: 'Assigned Stylist', // Include additional fields
-                price: '500'
+
+        await sendBookingStatusEmail(
+            request.email,
+            'accepted',
+            {
+                service: request.service,
+                date: request.date,
+                time: request.time,
+                location: request.location
             }
+        );
+
+        res.json({ 
+            message: 'Request accepted',
+            request 
         });
     } catch (error) {
-        console.error("Error accepting request:", error);
-        res.status(500).json({ 
-            error: 'Error accepting request',
-            details: error.message 
-        });
+        console.error('Error accepting request:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -313,49 +314,67 @@ app.post('/api/admin-requests/:id/decline', async (req, res) => {
             { status: 'declined' },
             { new: true }
         );
+
         if (!request) {
             return res.status(404).json({ error: 'Request not found' });
         }
-        res.json({ message: 'Request declined successfully', request });
-    } catch (error) {
-        console.error("Error declining request:", error);
-        res.status(500).json({ 
-            error: 'Error declining request',
-            details: error.message 
+
+        await sendBookingStatusEmail(
+            request.email,
+            'declined',
+            {
+                service: request.service,
+                date: request.date,
+                time: request.time,
+                location: request.location
+            }
+        );
+
+        res.json({ 
+            message: 'Request declined',
+            request 
         });
+    } catch (error) {
+        console.error('Error declining request:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
-// Add this after your other routes
+// Add appointments API endpoints
 app.get('/api/appointments', async (req, res) => {
     try {
+        console.log('Fetching appointments...');
         const appointments = await R1.find({})
             .sort({ createdAt: -1 })
-            .select('service date time location message status');
+            .lean();
+        console.log('Appointments found:', appointments);
         res.json(appointments);
     } catch (error) {
-        console.error("Error fetching appointments:", error);
-        res.status(500).json({ 
-            error: 'Error fetching appointments',
-            details: error.message 
-        });
+        console.error('Error fetching appointments:', error);
+        res.status(500).json({ error: 'Failed to fetch appointments' });
     }
 });
 
+// Add update appointment endpoint
 app.put('/api/appointments/:id', async (req, res) => {
     try {
+        const { id } = req.params;
+        const { service, date, time, message } = req.body;
+        
         const updatedAppointment = await R1.findByIdAndUpdate(
-            req.params.id,
-            req.body,
+            id,
+            { service, date, time, message },
             { new: true }
         );
+
         if (!updatedAppointment) {
             return res.status(404).json({ error: 'Appointment not found' });
         }
+
         res.json(updatedAppointment);
     } catch (error) {
-        console.error("Error updating appointment:", error);
-        res.status(500).json({ error: 'Error updating appointment' });
+        console.error('Error updating appointment:', error);
+        res.status(500).json({ error: 'Failed to update appointment' });
     }
 });
 
@@ -396,11 +415,9 @@ app.use((err, req, res, next) => {
 // Add a 404 handler - must be after all other routes
 app.use((req, res, next) => {
     console.log(`404: ${req.method} ${req.url}`);
-    // Check if the request is an API call or static file
     if (req.url.startsWith('/api/') || req.url.includes('.')) {
         return res.status(404).json({ error: 'Resource not found' });
     }
-    // For regular page requests, redirect to home
     res.redirect('/');
 });
 
